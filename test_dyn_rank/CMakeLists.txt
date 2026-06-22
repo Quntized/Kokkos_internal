@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 # When built standalone (not as a subdirectory), this is the project root.
 if(NOT PROJECT_NAME)
   project(test_dyn_rank CXX)
-  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 20)
   find_package(Kokkos 4.0 REQUIRED)
   enable_testing()
 endif()
