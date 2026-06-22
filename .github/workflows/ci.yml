@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: [develop]
   pull_request:
     branches: ['**']
     types: [opened, synchronize, reopened, labeled]
@@ -70,7 +70,7 @@ jobs:
     # To trigger on a PR: add the 'gpu-ci' label on the GitHub PR page.
     # ───────────────────────────────────────────────────────────────────
     if: >
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
       (
         contains(github.event.pull_request.labels.*.name, 'gpu-ci') &&
         github.event.pull_request.head.repo.full_name == github.repository
