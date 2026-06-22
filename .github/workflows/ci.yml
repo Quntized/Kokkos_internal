@@ -2,11 +2,11 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: [develop]
   pull_request:
     branches: ['**']
+    types: [opened, synchronize, reopened, labeled]
 
-# Cancel in-progress runs for the same branch/PR to save runner minutes
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -59,10 +59,21 @@ jobs:
 
   cuda-test:
     name: "Build & Test (CUDA 12.6, GPU)"
+
+    if: >
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
+      (
+        contains(github.event.pull_request.labels.*.name, 'gpu-ci') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+
     runs-on: [self-hosted, gpu, linux]
+
+    environment: gpu
+
     container:
       image: nvidia/cuda:12.6.3-devel-ubuntu24.04
-      options: --gpus all    # <-- critical: passes host GPU into container
+      options: --gpus all
 
     env:
       BUILD_DIR: build
