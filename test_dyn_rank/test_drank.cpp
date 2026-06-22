@@ -226,6 +226,25 @@ static void test_dyn_rank_view_span() {
     CHECK(drank_m.extent(1) == 20u);
     CHECK(drank_m.extent(2) == 30u);
 }
+#ifdef KOKKOS_ENABLE_CUDA
+static void test_check_issue_7604(){
+    Kokkos::DynRankView<double, Kokkos::LayoutRight> drank_lay("dynamic_rank",5,6);
+    CHECK(drank_lay.extent(0) == 5u);
+    CHECK(drank_lay.extent(1) == 6u);
+    Kokkos::parallel_for("TestDynamics for issue 7604", Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0,0},{5,6}),
+        KOKKOS_LAMBDA(const int i, const int j){
+            drank_lay(i,j) = i*10+j;
+        });
+    Kokkos::fence();
+    auto host_mirror = Kokkos::create_mirror_view(drank_lay);
+    Kokkos::deep_copy(host_mirror, drank_lay);
+    for(int i=0; i<5; i++){
+        for(int j=0; j<6; j++){
+            CHECK(host_mirror(i,j) == i*10+j);
+        }
+    }
+}
+#endif
 
 
 
@@ -280,6 +299,7 @@ int main(int argc, char** argv) {
 
 #ifdef KOKKOS_ENABLE_CUDA
         Test::test_cuda_specific();
+        Test::test_check_issue_7604();
 #endif
 
         std::cout << "\n*** ALL TESTS PASSED ***\n";
