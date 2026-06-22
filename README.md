@@ -1,7 +1,8 @@
 # Kokkos_internal
 This repository contains only the `dynamic_view_rank` files inside `kokkos/containers` . My entirely goal for this project is to debug (and simultaneously understand the behind the scene of kokkos) . 
 This repo will have distinct file containing internal test case.
-bash```
+
+```
 #to run this you need to first clone the kokkos repository. Given below:
 git clone https://github.com/kokkos/kokkos.git
 cmake -B builddir \
