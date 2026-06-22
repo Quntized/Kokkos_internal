@@ -60,17 +60,31 @@ jobs:
 
   cuda-test:
     name: "Build & Test (CUDA 12.6, GPU)"
-    # Only runs when:
-    #   1. Push to main branch (post-merge validation)
-    #   2. PR has the 'gpu-ci' label (opt-in GPU testing)
+    # ── Security: protects the self-hosted GPU runner ──────────────────
+    # Conditions (ALL must be true):
+    #   • 'gpu-ci' label on the PR  — only repo maintainers can add labels
+    #   • PR is NOT from a fork     — blocks external/untrusted code
+    #   OR
+    #   • Direct push to main       — post-merge validation
+    #
     # To trigger on a PR: add the 'gpu-ci' label on the GitHub PR page.
+    # ───────────────────────────────────────────────────────────────────
     if: >
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      contains(github.event.pull_request.labels.*.name, 'gpu-ci')
+      (
+        contains(github.event.pull_request.labels.*.name, 'gpu-ci') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+
     runs-on: [self-hosted, gpu, linux]
+
+    # GitHub Environment — optionally configure required reviewers in
+    # Settings → Environments → 'gpu' for an extra manual approval gate.
+    environment: gpu
+
     container:
       image: nvidia/cuda:12.6.3-devel-ubuntu24.04
-      options: --gpus all    # <-- critical: passes host GPU into container
+      options: --gpus all
 
     env:
       BUILD_DIR: build
