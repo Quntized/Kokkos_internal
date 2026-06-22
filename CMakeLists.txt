@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 
 # Allow the user to override the Kokkos version fetched
-set(KOKKOS_FETCH_TAG  "4.6.01" CACHE STRING "Kokkos git tag to fetch")
+set(KOKKOS_FETCH_TAG  "5.1.1" CACHE STRING "Kokkos git tag to fetch")
 
 find_package(Kokkos 4.0 QUIET)
 if(NOT Kokkos_FOUND)
