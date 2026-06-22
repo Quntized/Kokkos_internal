@@ -5,6 +5,7 @@ on:
     branches: ['**']
   pull_request:
     branches: ['**']
+    types: [opened, synchronize, reopened, labeled]
 
 # Cancel in-progress runs for the same branch/PR to save runner minutes
 concurrency:
@@ -59,6 +60,11 @@ jobs:
 
   cuda-test:
     name: "Build & Test (CUDA 12.6, GPU)"
+    # Only runs when the 'gpu-ci' label is on the PR, or on direct pushes.
+    # To trigger: add the 'gpu-ci' label to your PR on GitHub.
+    if: >
+      github.event_name == 'push' ||
+      contains(github.event.pull_request.labels.*.name, 'gpu-ci')
     runs-on: [self-hosted, gpu, linux]
     container:
       image: nvidia/cuda:12.6.3-devel-ubuntu24.04
