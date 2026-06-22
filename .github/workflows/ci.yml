@@ -60,10 +60,12 @@ jobs:
 
   cuda-test:
     name: "Build & Test (CUDA 12.6, GPU)"
-    # Only runs when the 'gpu-ci' label is on the PR, or on direct pushes.
-    # To trigger: add the 'gpu-ci' label to your PR on GitHub.
+    # Only runs when:
+    #   1. Push to main branch (post-merge validation)
+    #   2. PR has the 'gpu-ci' label (opt-in GPU testing)
+    # To trigger on a PR: add the 'gpu-ci' label on the GitHub PR page.
     if: >
-      github.event_name == 'push' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       contains(github.event.pull_request.labels.*.name, 'gpu-ci')
     runs-on: [self-hosted, gpu, linux]
     container:
