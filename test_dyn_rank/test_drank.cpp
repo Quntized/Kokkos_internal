@@ -51,14 +51,16 @@ struct TestDynamicView {
         view_type d2(d1);                         // shallow copy
         view_type d3("d3", 1024, arg_total_size);
 
-        CHECK(d2.is_allocated() == true);
-        CHECK(d3.is_allocated() == true);
+        // Before resize_serial, no chunks are allocated yet
+        CHECK(d2.is_allocated() == false);
+        CHECK(d3.is_allocated() == false);
 
         unsigned d_size = arg_total_size / 8;
         d1.resize_serial(d_size);
-        d2.resize_serial(d_size);
         d3.resize_serial(d_size);
 
+        // After resize_serial, chunks are allocated
+        // d2 is a shallow copy of d1, so it sees d1's chunks
         CHECK(d1.is_allocated() == true);
         CHECK(d2.is_allocated() == true);
         CHECK(d3.is_allocated() == true);
