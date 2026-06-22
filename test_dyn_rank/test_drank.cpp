@@ -228,6 +228,7 @@ static void test_dyn_rank_view_span() {
 }
 
 
+
 #ifdef KOKKOS_ENABLE_CUDA
 static void test_cuda_specific() {
     std::cout << "\n=== test_cuda_specific ===\n";
