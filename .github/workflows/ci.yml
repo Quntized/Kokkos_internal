@@ -57,12 +57,12 @@ jobs:
       - name: Run tests
         run: ctest --test-dir ${{ env.BUILD_DIR }} --output-on-failure --verbose
 
-
-  cuda-compile:
-    name: "Compile (CUDA 12.6, GCC)"
-    runs-on: ubuntu-latest
+  cuda-test:
+    name: "Build & Test (CUDA 12.6, GPU)"
+    runs-on: [self-hosted, gpu, linux]
     container:
       image: nvidia/cuda:12.6.3-devel-ubuntu24.04
+      options: --gpus all    # <-- critical: passes host GPU into container
 
     env:
       BUILD_DIR: build
@@ -77,6 +77,9 @@ jobs:
           apt-get update -qq
           apt-get install -y -qq cmake g++ git
 
+      - name: Verify GPU access
+        run: nvidia-smi
+
       - name: Cache Kokkos build (CUDA)
         uses: actions/cache@v4
         with:
@@ -84,10 +87,10 @@ jobs:
             build/_deps/kokkos-src
             build/_deps/kokkos-build
             build/_deps/kokkos-subbuild
-          key: kokkos-cuda-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+          key: kokkos-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
           restore-keys: |
-            kokkos-cuda-${{ hashFiles('CMakeLists.txt') }}-
-            kokkos-cuda-
+            kokkos-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-
+            kokkos-cuda-gpu-
 
       - name: Configure CMake (CUDA)
         run: |
@@ -96,8 +99,10 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DKokkos_ENABLE_SERIAL=ON \
             -DKokkos_ENABLE_CUDA=ON \
-            -DKokkos_ARCH_AMPERE80=ON \
             -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF
 
-      - name: Build (compile only – no GPU to run)
+      - name: Build
         run: cmake --build ${{ env.BUILD_DIR }}
+
+      - name: Run tests
+        run: ctest --test-dir ${{ env.BUILD_DIR }} --output-on-failure --verbose
