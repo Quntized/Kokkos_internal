@@ -233,7 +233,7 @@ static void test_dyn_rank_view_traits() {
     CHECK((std::is_same_v<kokkos_dview::pointer_type, double*>));
     CHECK((std::is_same_v<kokkos_dview::reference_type, double&>));
     CHECK((std::is_same_v<kokkos_dview::memory_traits,
-                          Kokkos::MemoryTraits<>>));
+                          Kokkos::MemoryTraits<0>>));
 }
 
 // -------------------------------------------------------------------------
