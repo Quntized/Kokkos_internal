@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+# Cancel in-progress runs for the same branch/PR to save runner minutes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  host-test:
+    name: "Build & Test (GCC, Serial+OpenMP)"
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_DIR: build
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq cmake g++ libomp-dev
+
+      - name: Cache Kokkos build
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/_deps/kokkos-src
+            build/_deps/kokkos-build
+            build/_deps/kokkos-subbuild
+          key: kokkos-host-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+          restore-keys: |
+            kokkos-host-${{ hashFiles('CMakeLists.txt') }}-
+            kokkos-host-
+
+      - name: Configure CMake
+        run: |
+          cmake -B ${{ env.BUILD_DIR }} -S . \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DKokkos_ENABLE_SERIAL=ON \
+            -DKokkos_ENABLE_OPENMP=ON \
+            -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF
+
+      - name: Build
+        run: cmake --build ${{ env.BUILD_DIR }}
+
+      - name: Run tests
+        run: ctest --test-dir ${{ env.BUILD_DIR }} --output-on-failure --verbose
+
+  # ====================================================================
+  # Job 2: CUDA compile check (no GPU on runner — compile only)
+  # ====================================================================
+  cuda-compile:
+    name: "Compile (CUDA 12.6, GCC)"
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:12.6.3-devel-ubuntu24.04
+
+    env:
+      BUILD_DIR: build
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq cmake g++ git
+
+      - name: Cache Kokkos build (CUDA)
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/_deps/kokkos-src
+            build/_deps/kokkos-build
+            build/_deps/kokkos-subbuild
+          key: kokkos-cuda-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+          restore-keys: |
+            kokkos-cuda-${{ hashFiles('CMakeLists.txt') }}-
+            kokkos-cuda-
+
+      - name: Configure CMake (CUDA)
+        run: |
+          cmake -B ${{ env.BUILD_DIR }} -S . \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DKokkos_ENABLE_SERIAL=ON \
+            -DKokkos_ENABLE_CUDA=ON \
+            -DKokkos_ARCH_AMPERE80=ON \
+            -DKokkos_ENABLE_DEPRECATED_CODE_4=OFF
+
+      - name: Build (compile only – no GPU to run)
+        run: cmake --build ${{ env.BUILD_DIR }}
