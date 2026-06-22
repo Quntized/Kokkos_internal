@@ -107,6 +107,42 @@ namespace Test {
             } else {
                 std::cout<<"Data pointers are different, copy was made."<<std::endl;
             }
+            using ddyn_view = Kokkos::DynRankView<double,Kokkos::LayoutRight>;
+            bool is_dyn_rank_view_b = Kokkos::is_dyn_rank_view_v<ddyn_view>;
+            std::cout<<"is_dyn_rank_view = "<<is_dyn_rank_view_b<<std::endl;
+            using kokkos_dview = Kokkos::DynRankView<double,Kokkos::LayoutRight>;
+            kokkos_dview drank_m("drank_m", 10, 20, 30);
+            //size_t rank_m = drank_m.m_rank; this is inaccessible as PRIVATE;
+            //std::cout<<"rank of drank_m = "<<rank_m<<std::endl;
+            std::cout<<"is same Kokkos::DynRankView<double,Kokkos::LayoutRight>::viewtraits == viewtraits = "<<(std::is_same_v<kokkos_dview::drvtraits,Kokkos::ViewTraits<double,Kokkos::LayoutRight>>)<<std::endl;
+            std::cout<<"is same Kokkos::DynRankView<double,Kokkos::LayoutRight>::view_type == view = "<<(std::is_same_v<kokkos_dview::view_type,Kokkos::View<double*******,Kokkos::LayoutRight>>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::data_type, double> = "<<(std::is_same_v<kokkos_dview::data_type, double>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::value_type, double> = "<<(std::is_same_v<kokkos_dview::value_type, double>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::array_layout, Kokkos::LayoutRight> = "<<(std::is_same_v<kokkos_dview::array_layout, Kokkos::LayoutRight>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::execution_space, Kokkos::CudaSpace> = "<<(std::is_same_v<kokkos_dview::execution_space, Kokkos::Cuda>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::memory_space, Kokkos::CudaSpace> = "<<(std::is_same_v<kokkos_dview::memory_space, Kokkos::CudaSpace>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::device_type, Kokkos::Device<Kokkos::CudaSpace, Kokkos::CudaSpace>> = "<<(std::is_same_v<kokkos_dview::device_type, Kokkos::Device<Kokkos::Cuda,Kokkos::CudaSpace>>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::pointer_type, double*> = "<<(std::is_same_v<kokkos_dview::pointer_type, double*>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::reference_type, double&> = "<<(std::is_same_v<kokkos_dview::reference_type, double&>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::memory_traits, Kokkos::MemoryTraits<>> = "<<(std::is_same_v<kokkos_dview::memory_traits, Kokkos::MemoryTraits<>>)<<std::endl;
+            std::cout<<"is_same_v<kokkos_dview::host_mirror_type, Kokkos::Serial> = "<<(std::is_same_v<kokkos_dview::host_mirror_type, Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::HostSpace>>)<<std::endl;
+            if(drank_m.span_is_contiguous()){
+                size_t memory_ = drank_m.span();
+                std::cout<<"Total length = "<<drank_m.size()<<std::endl;
+                std::cout<<"Span is contiguous, span = "<<memory_<<std::endl;
+            }
+            std::cout<<"stride = "<<drank_m.stride(0)<<std::endl;
+            std::cout<<"stride = "<<drank_m.stride(1)<<std::endl;
+            std::cout<<"stride = "<<drank_m.stride(2)<<std::endl;
+            std::cout<<"extent = "<<drank_m.extent(0)<<std::endl;
+            std::cout<<"extent = "<<drank_m.extent(1)<<std::endl;
+            std::cout<<"extent = "<<drank_m.extent(2)<<std::endl;
+            if(drank_m.is_allocated()){
+                std::cout<<"reference count : "<<drank_m.use_count()<<std::endl;
+            }
+
+
+
         }
     };
 
