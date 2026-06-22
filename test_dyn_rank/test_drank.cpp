@@ -82,6 +82,31 @@ namespace Test {
             int dynrank =2;
             Kokkos::LayoutRight layra = Kokkos::Impl::reconstructLayout(l5,dynrank);
             std::cout<<"reconstructed layout = "<<layra.dimension[0]<<" "<<layra.dimension[1]<<" "<<std::endl;
+            struct SajidS {
+                size_t extent(unsigned r) const {
+                    if(r == 0) return 10;
+                    if(r == 1) return 20;
+                    return 1;
+                }
+            };
+            SajidS sajid;
+            unsigned dyn_rank = 2;
+            bool ok =  Kokkos::Impl::dyn_rank_view_verify_operator_bounds<0>(dyn_rank, sajid,5,10,0,0,0,0,0);
+            std::cout<<"dyn_rank_view_verify_operator_bounds = "<<ok<<std::endl;
+            unsigned rankk = 2;
+            Kokkos::Impl::SharedAllocationTracker dummy_tracker;
+            Kokkos::Impl::dyn_rank_view_verify_operator_bounds<Kokkos::CudaSpace>(3,rankk, dummy_tracker,sajid,5,10,0,0,0,0,0);
+            Kokkos::View<double**,Kokkos::LayoutRight> static_view("sajid_b",10,20);
+            Kokkos::DynRankView<double,Kokkos::LayoutRight> dyn_view=static_view;
+            auto host_mirror = Kokkos::create_mirror_view(dyn_view);
+            host_mirror(0,0) = 42.0;
+            Kokkos::deep_copy(dyn_view, host_mirror);
+            std::cout<<"dyn_view(0,0) = "<<host_mirror(0,0)<<std::endl;
+            if(dyn_view.data() == static_view.data()) {
+                std::cout<<"Data pointers are the same, no copy needed."<<std::endl;
+            } else {
+                std::cout<<"Data pointers are different, copy was made."<<std::endl;
+            }
         }
     };
 

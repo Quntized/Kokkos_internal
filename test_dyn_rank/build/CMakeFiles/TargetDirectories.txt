@@ -1,0 +1,3 @@
+/home/sajid/kokkos_internal/test_dyn_rank/build/CMakeFiles/tests.dir
+/home/sajid/kokkos_internal/test_dyn_rank/build/CMakeFiles/edit_cache.dir
+/home/sajid/kokkos_internal/test_dyn_rank/build/CMakeFiles/rebuild_cache.dir
