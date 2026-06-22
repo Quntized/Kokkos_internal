@@ -3,9 +3,10 @@
 [![CI](https://github.com/Quntized/Kokkos_internal/actions/workflows/ci.yml/badge.svg)](https://github.com/Quntized/Kokkos_internal/actions/workflows/ci.yml)
 
 This repository contains only the `dynamic_view_rank` files inside `kokkos/containers` . My entirely goal for this project is to debug (and simultaneously understand the behind the scene of kokkos) . 
-This repo will have distinct file containing internal test case.
+This repo will have distinct file containing internal test case, and also for my learning purposes
 
 ## Quick Build (self-contained)
+
 
 The project fetches Kokkos automatically via CMake `FetchContent`:
 
