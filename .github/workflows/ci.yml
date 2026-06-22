@@ -7,7 +7,6 @@ on:
     branches: ['**']
     types: [opened, synchronize, reopened, labeled]
 
-# Cancel in-progress runs for the same branch/PR to save runner minutes
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -60,15 +59,7 @@ jobs:
 
   cuda-test:
     name: "Build & Test (CUDA 12.6, GPU)"
-    # ── Security: protects the self-hosted GPU runner ──────────────────
-    # Conditions (ALL must be true):
-    #   • 'gpu-ci' label on the PR  — only repo maintainers can add labels
-    #   • PR is NOT from a fork     — blocks external/untrusted code
-    #   OR
-    #   • Direct push to main       — post-merge validation
-    #
-    # To trigger on a PR: add the 'gpu-ci' label on the GitHub PR page.
-    # ───────────────────────────────────────────────────────────────────
+
     if: >
       (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
       (
@@ -78,8 +69,6 @@ jobs:
 
     runs-on: [self-hosted, gpu, linux]
 
-    # GitHub Environment — optionally configure required reviewers in
-    # Settings → Environments → 'gpu' for an extra manual approval gate.
     environment: gpu
 
     container:
