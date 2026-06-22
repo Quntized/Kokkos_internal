@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 project(kokkos_internal CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ---------------------------------------------------------------------------
@@ -13,7 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 
 # Allow the user to override the Kokkos version fetched
-set(KOKKOS_FETCH_TAG  "4.6.01" CACHE STRING "Kokkos git tag to fetch")
+set(KOKKOS_FETCH_TAG  "5.1.1" CACHE STRING "Kokkos git tag to fetch")
 
 find_package(Kokkos 4.0 QUIET)
 if(NOT Kokkos_FOUND)

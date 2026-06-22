@@ -7,6 +7,7 @@ This repo will have distinct file containing internal test case, and also for my
 
 ## Quick Build (self-contained)
 
+
 The project fetches Kokkos automatically via CMake `FetchContent`:
 
 ```bash
