@@ -14,9 +14,6 @@
 #include <Kokkos_Timer.hpp>
 #include <Kokkos_DynRankView.hpp>
 
-// =========================================================================
-// Helper macro – prints the check name and aborts on failure
-// =========================================================================
 #define CHECK(expr)                                                          \
   do {                                                                       \
     if (!(expr)) {                                                           \
@@ -30,9 +27,7 @@
 
 namespace Test {
 
-// -------------------------------------------------------------------------
-// 1. DynamicView – basic allocation, resize, shallow-copy
-// -------------------------------------------------------------------------
+
 template <typename Scalar, class Space>
 struct TestDynamicView {
     using execution_space = typename Space::execution_space;
@@ -43,15 +38,13 @@ struct TestDynamicView {
     static void run(unsigned arg_total_size) {
         std::cout << "\n=== TestDynamicView ===\n";
 
-        // Default-constructed view is not allocated
         view_type d1;
         CHECK(d1.is_allocated() == false);
 
         d1 = view_type("d1", 1024, arg_total_size);
-        view_type d2(d1);                         // shallow copy
+        view_type d2(d1);                         
         view_type d3("d3", 1024, arg_total_size);
 
-        // Before resize_serial, no chunks are allocated yet
         CHECK(d2.is_allocated() == false);
         CHECK(d3.is_allocated() == false);
 
@@ -59,17 +52,13 @@ struct TestDynamicView {
         d1.resize_serial(d_size);
         d3.resize_serial(d_size);
 
-        // After resize_serial, chunks are allocated
-        // d2 is a shallow copy of d1, so it sees d1's chunks
         CHECK(d1.is_allocated() == true);
         CHECK(d2.is_allocated() == true);
         CHECK(d3.is_allocated() == true);
     }
 };
 
-// -------------------------------------------------------------------------
-// 2. ViewDataTypeFromRank compile-time check
-// -------------------------------------------------------------------------
+
 static void test_view_data_type_from_rank() {
     std::cout << "\n=== test_view_data_type_from_rank ===\n";
 
@@ -77,9 +66,7 @@ static void test_view_data_type_from_rank() {
     CHECK((std::is_same_v<Rank4::type, double****>));
 }
 
-// -------------------------------------------------------------------------
-// 3. DynRankView – construction, rank, layout, span
-// -------------------------------------------------------------------------
+
 static void test_dyn_rank_view_basics(unsigned arg_total_size) {
     std::cout << "\n=== test_dyn_rank_view_basics ===\n";
 
@@ -87,14 +74,12 @@ static void test_dyn_rank_view_basics(unsigned arg_total_size) {
         d4("d4", 1024, arg_total_size);
     CHECK(d4.rank() == 2u);
 
-    // computeRank with explicit dimensions
     size_t rank = Kokkos::Impl::DynRankDimTraits<void>::computeRank(
         2, 2, 2,
         KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
         KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX);
     CHECK(rank == 3u);
 
-    // computeRank from a LayoutRight
     Kokkos::LayoutRight l(
         10, 20, 30,
         KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
@@ -102,7 +87,6 @@ static void test_dyn_rank_view_basics(unsigned arg_total_size) {
     size_t rank2 = Kokkos::Impl::DynRankDimTraits<void>::computeRank(l);
     CHECK(rank2 == 3u);
 
-    // computeRank with view_alloc and layout
     Kokkos::LayoutRight l2(
         10, 20, 30, 40,
         KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
@@ -112,9 +96,6 @@ static void test_dyn_rank_view_basics(unsigned arg_total_size) {
         Kokkos::Impl::DynRankDimTraits<void>::computeRank(view_a, l2);
     CHECK(rank3 == 4u);
 
-    // createLayout pads trailing dimensions to 1 (for internal 7-rank View),
-    // so computeRank on the result will NOT match the original rank.
-    // This is by design – just verify it doesn't crash.
     Kokkos::LayoutRight l3(10, 20, 30, 40, 50);
     Kokkos::LayoutRight lr =
         Kokkos::Impl::DynRankDimTraits<void>::createLayout(l3);
@@ -124,9 +105,7 @@ static void test_dyn_rank_view_basics(unsigned arg_total_size) {
     CHECK(rank4 > 0u);
 }
 
-// -------------------------------------------------------------------------
-// 4. DynRankView – createLayout with traits
-// -------------------------------------------------------------------------
+
 static void test_dyn_rank_create_layout() {
     std::cout << "\n=== test_dyn_rank_create_layout ===\n";
 
@@ -141,12 +120,9 @@ static void test_dyn_rank_create_layout() {
             view_a_b, l4);
     CHECK(la.dimension[0] == 10u);
     CHECK(la.dimension[1] == 20u);
-    // dimension[2] and beyond are padded to 1 for a rank-2 traits type
 }
 
-// -------------------------------------------------------------------------
-// 5. DynRankView – createView
-// -------------------------------------------------------------------------
+
 static void test_dyn_rank_create_view() {
     std::cout << "\n=== test_dyn_rank_create_view ===\n";
 
@@ -163,9 +139,6 @@ static void test_dyn_rank_create_view() {
     CHECK(v.extent(2) == 30u);
 }
 
-// -------------------------------------------------------------------------
-// 6. reconstructLayout
-// -------------------------------------------------------------------------
 static void test_reconstruct_layout() {
     std::cout << "\n=== test_reconstruct_layout ===\n";
 
@@ -177,9 +150,7 @@ static void test_reconstruct_layout() {
     CHECK(layra.dimension[1] == 3u);
 }
 
-// -------------------------------------------------------------------------
-// 7. dyn_rank_view_verify_operator_bounds
-// -------------------------------------------------------------------------
+
 static void test_dyn_rank_bounds() {
     std::cout << "\n=== test_dyn_rank_bounds ===\n";
 
@@ -198,9 +169,6 @@ static void test_dyn_rank_bounds() {
     CHECK(ok == true);
 }
 
-// -------------------------------------------------------------------------
-// 8. DynRankView ↔ View interop + deep_copy
-// -------------------------------------------------------------------------
 static void test_dyn_rank_view_interop() {
     std::cout << "\n=== test_dyn_rank_view_interop ===\n";
 
@@ -218,9 +186,6 @@ static void test_dyn_rank_view_interop() {
     CHECK(dyn_view.data() == static_view.data());
 }
 
-// -------------------------------------------------------------------------
-// 9. DynRankView type traits
-// -------------------------------------------------------------------------
 static void test_dyn_rank_view_traits() {
     std::cout << "\n=== test_dyn_rank_view_traits ===\n";
 
@@ -242,9 +207,7 @@ static void test_dyn_rank_view_traits() {
                           Kokkos::MemoryTraits<0>>));
 }
 
-// -------------------------------------------------------------------------
-// 10. DynRankView span & stride
-// -------------------------------------------------------------------------
+
 static void test_dyn_rank_view_span() {
     std::cout << "\n=== test_dyn_rank_view_span ===\n";
 
@@ -264,9 +227,7 @@ static void test_dyn_rank_view_span() {
     CHECK(drank_m.extent(2) == 30u);
 }
 
-// -------------------------------------------------------------------------
-// 11. CUDA-specific tests (only compiled when CUDA backend is enabled)
-// -------------------------------------------------------------------------
+
 #ifdef KOKKOS_ENABLE_CUDA
 static void test_cuda_specific() {
     std::cout << "\n=== test_cuda_specific ===\n";
@@ -302,15 +263,10 @@ static void test_cuda_specific() {
 
 }  // namespace Test
 
-// =========================================================================
 int main(int argc, char** argv) {
     Kokkos::initialize(argc, argv);
     {
-        // DynamicView tests
-        Test::TestDynamicView<double,
-                              Kokkos::DefaultExecutionSpace>::run(1024);
-
-        // DynRankView tests
+        Test::TestDynamicView<double,Kokkos::DefaultExecutionSpace>::run(1024);
         Test::test_view_data_type_from_rank();
         Test::test_dyn_rank_view_basics(1024);
         Test::test_dyn_rank_create_layout();

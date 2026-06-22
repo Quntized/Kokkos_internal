@@ -12,9 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ====================================================================
-  # Job 1: Host-only build + run tests (Serial + OpenMP)
-  # ====================================================================
+
   host-test:
     name: "Build & Test (GCC, Serial+OpenMP)"
     runs-on: ubuntu-latest
