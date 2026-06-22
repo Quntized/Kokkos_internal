@@ -42,9 +42,3 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-## CI
-
-Every push and pull request triggers a [GitHub Actions workflow](.github/workflows/ci.yml) that:
-1. Fetches Kokkos (cached for speed)
-2. Builds with Serial + OpenMP backends
-3. Runs the test suite via CTest
