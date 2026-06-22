@@ -21,4 +21,6 @@ else()
 endif()
 
 enable_testing()
+
+enable_testing()
 add_subdirectory(test_dyn_rank)

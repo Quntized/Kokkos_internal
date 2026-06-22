@@ -57,6 +57,7 @@ jobs:
       - name: Run tests
         run: ctest --test-dir ${{ env.BUILD_DIR }} --output-on-failure --verbose
 
+
   cuda-compile:
     name: "Compile (CUDA 12.6, GCC)"
     runs-on: ubuntu-latest

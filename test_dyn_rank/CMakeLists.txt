@@ -5,6 +5,7 @@ if(NOT PROJECT_NAME)
   project(test_dyn_rank CXX)
   set(CMAKE_CXX_STANDARD 20)
   find_package(Kokkos 5.1.1 REQUIRED)
+
   enable_testing()
 endif()
 
