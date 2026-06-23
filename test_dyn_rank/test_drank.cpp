@@ -266,6 +266,7 @@ static void test_access_and_3rd_operator(){
     }
 }
 #endif
+#ifdef KOKKOS_ENABLE_CUDA
 static void test_dyn_rank_ctor(){
     Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay("dynamic_rank",5,6);
     CHECK(drank_lay.extent(0) == 5u);
@@ -289,8 +290,7 @@ static void test_dyn_rank_ctor(){
     std::cout<<"Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> dview(sview,2);"<<dview.extent(0)<<" , "<<dview.extent(1)<<std::endl;
     
 }
-
-
+#endif
 
 
 #ifdef KOKKOS_ENABLE_CUDA
