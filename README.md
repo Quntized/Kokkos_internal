@@ -2,8 +2,9 @@
 
 [![CI](https://github.com/Quntized/Kokkos_internal/actions/workflows/ci.yml/badge.svg)](https://github.com/Quntized/Kokkos_internal/actions/workflows/ci.yml)
 
-This repository contains only the `dynamic_view_rank` files inside `kokkos/containers` . My entirely goal for this project is to debug (and simultaneously understand the behind the scene of kokkos) . 
-This repo will have distinct file containing internal test case, and also for my learning purposes
+This repository contains all the files inside `kokkos`, the repository's test files (apart from Kokkos). My entire goal for this project is to debug in Kokkos and find any potential issue hidden in internal functions. 
+
+This repo will have distinct file containing internal test cases. (Currently it only contains the dynamic rank part, and further will be added in future)
 
 ## Quick Build (self-contained)
 

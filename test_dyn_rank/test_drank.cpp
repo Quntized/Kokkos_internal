@@ -19,7 +19,7 @@
     if (!(expr)) {                                                           \
       std::cerr << "FAILED: " #expr << "  (" << __FILE__ << ":"              \
                 << __LINE__ << ")\n";                                        \
-      std::abort();                                                          \
+      Kokkos::abort("Test failed!!!");                                                          \
     } else {                                                                 \
       std::cout << "  PASS: " #expr << "\n";                                 \
     }                                                                        \
@@ -246,18 +246,22 @@ static void test_check_issue_7604(){
 }
 #endif
 #ifdef KOKKOS_ENABLE_CUDA
+template <int N =100000>
 static void test_access_and_3rd_operator(){
     Kokkos::DynRankView<double> one;
-    Kokkos::DynRankView<double> array_like("allocated array", 10);
-    Kokkos::parallel_for("going through loop", Kokkos::RangePolicy<>(0,10),
+    Kokkos::DynRankView<double> array_like("allocated array", N);
+    Kokkos::Timer timer;
+    Kokkos::parallel_for("going through loop", Kokkos::RangePolicy<>(0,N),
         KOKKOS_LAMBDA(const int i){
             array_like.access(i) = i * 2.0;
             array_like(i) = array_like.access(i) + 1.0;
             array_like[i] = array_like[i] +1.0;
         });
+    double time = timer.seconds();
+    printf("%lf\n", time);  //
     auto host_view = Kokkos::create_mirror_view(array_like);
     Kokkos::deep_copy(host_view, array_like);
-    for(int i=0; i<10; i++){
+    for(int i=0; i<N; i++){
         CHECK(host_view(i) == i*2.0 + 2.0);
     }
 }
@@ -287,8 +291,6 @@ static void test_dyn_rank_ctor(){
     
 }
 #endif
-
-
 
 
 #ifdef KOKKOS_ENABLE_CUDA
