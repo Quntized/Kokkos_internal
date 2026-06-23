@@ -19,7 +19,7 @@
     if (!(expr)) {                                                           \
       std::cerr << "FAILED: " #expr << "  (" << __FILE__ << ":"              \
                 << __LINE__ << ")\n";                                        \
-      Kokkos::abort();                                                          \
+      Kokkos::abort("Test failed!!!");                                                          \
     } else {                                                                 \
       std::cout << "  PASS: " #expr << "\n";                                 \
     }                                                                        \
