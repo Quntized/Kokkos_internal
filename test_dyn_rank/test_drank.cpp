@@ -288,7 +288,6 @@ static void test_dyn_rank_ctor(){
     StaticView sview("mine", 10,5,4);
     Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> dview(sview,2);
     std::cout<<"Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> dview(sview,2);"<<dview.extent(0)<<" , "<<dview.extent(1)<<std::endl;
-    
 }
 #endif
 
@@ -333,6 +332,18 @@ static void test_as_view_of_rank_n(){
     bool res = std::is_same_v<stat_type,Kokkos::View<DataType**, LayOut,ExecSpace>>;
     CHECK(res);
 }
+template <class DataType, class ExecSpace, class LayOut>
+static void test_required_allocation_size(){
+    using DynRankType = Kokkos::DynRankView<DataType,LayOut,ExecSpace>;
+    const size_t bytes = sizeof(DataType);
+    auto size_length_1 = DynRankType::required_allocation_size(10);
+    DynRankType rank_1("Initiate",10);
+    CHECK(size_length_1 == 10*bytes);
+    auto size_length_2 = DynRankType::required_allocation_size(10,20);
+    CHECK(size_length_2 == 10*20*bytes);
+    auto size_length_3 = DynRankType::required_allocation_size(2,3,4,5,6,7,8,9);
+    CHECK(size_length_3 != 2*3*4*5*6*7*8*9*bytes);
+}
 
 
 }  // namespace Test
@@ -357,6 +368,9 @@ int main(int argc, char** argv) {
         Test::test_access_and_3rd_operator();
         Test::test_dyn_rank_ctor();
         Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,Kokkos::CudaSpace>();
+        Test::test_required_allocation_size<double, Kokkos::CudaSpace,Kokkos::LayoutRight>();
+        Test::test_required_allocation_size<double, Kokkos::HostSpace,Kokkos::LayoutRight>();
+        Test::test_required_allocation_size<int, Kokkos::CudaSpace,Kokkos::LayoutRight>();
 #endif
 
         std::cout << "\n*** ALL TESTS PASSED ***\n";
