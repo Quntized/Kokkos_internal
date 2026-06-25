@@ -344,6 +344,14 @@ static void test_required_allocation_size(){
     auto size_length_3 = DynRankType::required_allocation_size(2,3,4,5,6,7,8,9);
     CHECK(size_length_3 != 2*3*4*5*6*7*8*9*bytes);
 }
+template<class DataType, class LayOut>
+static void test_unmanaged_dynamicrank_view(){
+    DataType unmngd_raw_pointer = new DataType[50];
+    LayOut layout(10,5);
+    Kokkos::DynRankView<DataType, Layout> unmng_view(unmngd_raw_pointer, layout);
+    unmng_view(3) = 2000.0;
+    std::cout<<"Unmanaged_view[3] = "<<unmng_view(3)<<std::endl;
+}
 
 
 }  // namespace Test
@@ -371,6 +379,7 @@ int main(int argc, char** argv) {
         Test::test_required_allocation_size<double, Kokkos::CudaSpace,Kokkos::LayoutRight>();
         Test::test_required_allocation_size<double, Kokkos::HostSpace,Kokkos::LayoutRight>();
         Test::test_required_allocation_size<int, Kokkos::CudaSpace,Kokkos::LayoutRight>();
+        Test::test_unmanaged_dynamicrank_view<double,Kokkos::LayoutRight>()
 #endif
 
         std::cout << "\n*** ALL TESTS PASSED ***\n";
