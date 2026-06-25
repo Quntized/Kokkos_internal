@@ -325,6 +325,15 @@ static void test_cuda_specific() {
     std::cout << "  PASS: CUDA bounds check did not abort\n";
 }
 #endif
+template <class DataType, class LayOut, class ExecSpace>
+static void test_as_view_of_rank_n(){
+    Kokkos::DynRankView<DataType, LayOut, ExecSpace> dyn_rank("DynRank", 10,20);
+    auto stat_view = Kokkos::Impl::as_view_of_rank_n<2>(dyn_rank);
+    using stat_type = decltype(stat_view);
+    bool res = std::is_same_v<stat_type,Kokkos::View<DataType**, LayOut,ExecSpace>>;
+    CHECK(res);
+}
+
 
 }  // namespace Test
 
@@ -347,6 +356,7 @@ int main(int argc, char** argv) {
         Test::test_check_issue_7604();
         Test::test_access_and_3rd_operator();
         Test::test_dyn_rank_ctor();
+        Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,Kokkos::CudaSpace>();
 #endif
 
         std::cout << "\n*** ALL TESTS PASSED ***\n";
