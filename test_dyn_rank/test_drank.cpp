@@ -350,7 +350,7 @@ static void test_unmanaged_dynamicrank_view(){
     LayOut layout(10,5);
     Kokkos::DynRankView<DataType, Layout> unmng_view(unmngd_raw_pointer, layout);
     unmng_view(3) = 2000.0;
-    std::cout<<"Unmanaged_view[3] = "<<unmng_view(3)<<std::endl;
+    std::cout<<"Unmanaged_view[3] = "<<unmngd_raw_pointer[3]<<std::endl;
 }
 
 
@@ -379,7 +379,7 @@ int main(int argc, char** argv) {
         Test::test_required_allocation_size<double, Kokkos::CudaSpace,Kokkos::LayoutRight>();
         Test::test_required_allocation_size<double, Kokkos::HostSpace,Kokkos::LayoutRight>();
         Test::test_required_allocation_size<int, Kokkos::CudaSpace,Kokkos::LayoutRight>();
-        Test::test_unmanaged_dynamicrank_view<double,Kokkos::LayoutRight>()
+        Test::test_unmanaged_dynamicrank_view<double,Kokkos::LayoutRight>();
 #endif
 
         std::cout << "\n*** ALL TESTS PASSED ***\n";
