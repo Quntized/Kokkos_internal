@@ -287,6 +287,8 @@ static void test_dyn_rank_ctor() {
             << dview.extent(0) << " , " << dview.extent(1) << std::endl;
 }
 #endif
+#ifdef KOKKOS_ENABLE_CUDA
+
 static void test_dyn_rank_ctor() {
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
       "dynamic_rank", 5, 6);
