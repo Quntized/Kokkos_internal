@@ -1,4 +1,3 @@
-# .github/workflows/pr-review.yml
 name: AI Code Review
 
 on:
@@ -10,14 +9,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  review:
+  describe:
     runs-on: ubuntu-latest
-    name: AI Review
+    name: PR Walkthrough
     steps:
-      - name: PR Agent Review
+      - name: PR Agent Describe
         uses: Codium-ai/pr-agent@main
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          command: review
+          command: describe
