@@ -418,7 +418,7 @@ int main(int argc, char **argv) {
     Test::test_required_allocation_size<int, Kokkos::CudaSpace,
                                         Kokkos::LayoutRight>();
     Test::test_unmanaged_dynamicrank_view<double, Kokkos::LayoutRight>();
-#endif
+#endif // cuda test
 
     std::cout << "\n*** ALL TESTS PASSED ***\n";
   }
