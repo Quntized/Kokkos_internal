@@ -251,28 +251,42 @@ template <int N = 100000> static void test_access_and_3rd_operator() {
 #endif
 #ifdef KOKKOS_ENABLE_CUDA
 
-static void test_dyn_rank_ctor(){
-    Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay("dynamic_rank",5,6);
-    CHECK(drank_lay.extent(0) == 5u);
-    CHECK(drank_lay.extent(1) == 6u);
-    Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay2(drank_lay);
-    CHECK(drank_lay2.extent(0) == 5u);
-    CHECK(drank_lay2.extent(1) == 6u);
-    CHECK(drank_lay2.data() == drank_lay.data());
-    Kokkos::View<double**, Kokkos::LayoutRight, Kokkos::CudaSpace> view_passed("passed to drank",5,3);
-    Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay3(view_passed,1);
-    //CHECK(drank_lay3.extent(0) == view_passed.extent(0));
-    CHECK(drank_lay3.size() == view_passed.size());
-    Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay4 = drank_lay;
-    CHECK(drank_lay4.data() == drank_lay.data());
-    auto host_mirror = Kokkos::create_mirror_view(drank_lay3);
-    Kokkos::deep_copy(host_mirror, drank_lay3);
-    std::cout<<"Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay3(view_passed,1) "<<host_mirror.size()<<". And Extent "<<host_mirror.extent(0)<<std::endl; //point host mirror still points the view_passed or drank_lay3
-    using StaticView = Kokkos::View<double***,Kokkos::LayoutRight, Kokkos::CudaSpace>;
-    StaticView sview("mine", 10,5,4);
-    Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> dview(sview,2);
-    std::cout<<"Kokkos::DynRankView<double,Kokkos::LayoutRight, Kokkos::CudaSpace> dview(sview,2);"<<dview.extent(0)<<" , "<<dview.extent(1)<<std::endl;
-
+static void test_dyn_rank_ctor() {
+  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
+      "dynamic_rank", 5, 6);
+  CHECK(drank_lay.extent(0) == 5u);
+  CHECK(drank_lay.extent(1) == 6u);
+  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
+      drank_lay2(drank_lay);
+  CHECK(drank_lay2.extent(0) == 5u);
+  CHECK(drank_lay2.extent(1) == 6u);
+  CHECK(drank_lay2.data() == drank_lay.data());
+  Kokkos::View<double **, Kokkos::LayoutRight, Kokkos::CudaSpace> view_passed(
+      "passed to drank", 5, 3);
+  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
+      drank_lay3(view_passed, 1);
+  // CHECK(drank_lay3.extent(0) == view_passed.extent(0));
+  CHECK(drank_lay3.size() == view_passed.size());
+  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
+      drank_lay4 = drank_lay;
+  CHECK(drank_lay4.data() == drank_lay.data());
+  auto host_mirror = Kokkos::create_mirror_view(drank_lay3);
+  Kokkos::deep_copy(host_mirror, drank_lay3);
+  std::cout << "Kokkos::DynRankView<double,Kokkos::LayoutRight, "
+               "Kokkos::CudaSpace> drank_lay3(view_passed,1) "
+            << host_mirror.size() << ". And Extent " << host_mirror.extent(0)
+            << std::endl; // point host mirror still points the view_passed or
+                          // drank_lay3
+  using StaticView =
+      Kokkos::View<double ***, Kokkos::LayoutRight, Kokkos::CudaSpace>;
+  StaticView sview("mine", 10, 5, 4);
+  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> dview(
+      sview, 2);
+  std::cout << "Kokkos::DynRankView<double,Kokkos::LayoutRight, "
+               "Kokkos::CudaSpace> dview(sview,2);"
+            << dview.extent(0) << " , " << dview.extent(1) << std::endl;
+}
+#endif
 static void test_dyn_rank_ctor() {
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
       "dynamic_rank", 5, 6);
@@ -344,62 +358,35 @@ static void test_cuda_specific() {
 }
 #endif
 template <class DataType, class LayOut, class ExecSpace>
-static void test_as_view_of_rank_n(){
-    Kokkos::DynRankView<DataType, LayOut, ExecSpace> dyn_rank("DynRank", 10,20);
-    auto stat_view = Kokkos::Impl::as_view_of_rank_n<2>(dyn_rank);
-    using stat_type = decltype(stat_view);
-    bool res = std::is_same_v<stat_type,Kokkos::View<DataType**, LayOut,ExecSpace>>;
-    CHECK(res);
+static void test_as_view_of_rank_n() {
+  Kokkos::DynRankView<DataType, LayOut, ExecSpace> dyn_rank("DynRank", 10, 20);
+  auto stat_view = Kokkos::Impl::as_view_of_rank_n<2>(dyn_rank);
+  using stat_type = decltype(stat_view);
+  bool res =
+      std::is_same_v<stat_type, Kokkos::View<DataType **, LayOut, ExecSpace>>;
+  CHECK(res);
 }
 template <class DataType, class ExecSpace, class LayOut>
-static void test_required_allocation_size(){
-    using DynRankType = Kokkos::DynRankView<DataType,LayOut,ExecSpace>;
-    const size_t bytes = sizeof(DataType);
-    auto size_length_1 = DynRankType::required_allocation_size(10);
-    DynRankType rank_1("Initiate",10);
-    CHECK(size_length_1 == 10*bytes);
-    auto size_length_2 = DynRankType::required_allocation_size(10,20);
-    CHECK(size_length_2 == 10*20*bytes);
-    auto size_length_3 = DynRankType::required_allocation_size(2,3,4,5,6,7,8,9);
-    CHECK(size_length_3 != 2*3*4*5*6*7*8*9*bytes);
+static void test_required_allocation_size() {
+  using DynRankType = Kokkos::DynRankView<DataType, LayOut, ExecSpace>;
+  const size_t bytes = sizeof(DataType);
+  auto size_length_1 = DynRankType::required_allocation_size(10);
+  DynRankType rank_1("Initiate", 10);
+  CHECK(size_length_1 == 10 * bytes);
+  auto size_length_2 = DynRankType::required_allocation_size(10, 20);
+  CHECK(size_length_2 == 10 * 20 * bytes);
+  auto size_length_3 =
+      DynRankType::required_allocation_size(2, 3, 4, 5, 6, 7, 8, 9);
+  CHECK(size_length_3 != 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * bytes);
 }
-template<class DataType, class LayOut>
-static void test_unmanaged_dynamicrank_view(){
-    DataType* unmngd_raw_pointer = new DataType[50];
-    LayOut layout(10,5);
-    Kokkos::DynRankView<DataType, LayOut> unmng_view(unmngd_raw_pointer, layout);
-    unmng_view(3) = 2000.0;
-    std::cout<<"Unmanaged_view[3] = "<<unmngd_raw_pointer[3]<<std::endl;
+template <class DataType, class LayOut>
+static void test_unmanaged_dynamicrank_view() {
+  DataType *unmngd_raw_pointer = new DataType[50];
+  LayOut layout(10, 5);
+  Kokkos::DynRankView<DataType, LayOut> unmng_view(unmngd_raw_pointer, layout);
+  unmng_view(3) = 2000.0;
+  std::cout << "Unmanaged_view[3] = " << unmngd_raw_pointer[3] << std::endl;
 }
-
-
-
-}  // namespace Test
-
-int main(int argc, char** argv) {
-    Kokkos::initialize(argc, argv);
-    {
-        Test::TestDynamicView<double,Kokkos::DefaultExecutionSpace>::run(1024);
-        Test::test_view_data_type_from_rank();
-        Test::test_dyn_rank_view_basics(1024);
-        Test::test_dyn_rank_create_layout();
-        Test::test_dyn_rank_create_view();
-        Test::test_reconstruct_layout();
-        Test::test_dyn_rank_bounds();
-        Test::test_dyn_rank_view_interop();
-        Test::test_dyn_rank_view_traits();
-        Test::test_dyn_rank_view_span();
-
-#ifdef KOKKOS_ENABLE_CUDA
-        Test::test_cuda_specific();
-        Test::test_check_issue_7604();
-        Test::test_access_and_3rd_operator();
-        Test::test_dyn_rank_ctor();
-        Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,Kokkos::CudaSpace>();
-        Test::test_required_allocation_size<double, Kokkos::CudaSpace,Kokkos::LayoutRight>();
-        Test::test_required_allocation_size<double, Kokkos::HostSpace,Kokkos::LayoutRight>();
-        Test::test_required_allocation_size<int, Kokkos::CudaSpace,Kokkos::LayoutRight>();
-        Test::test_unmanaged_dynamicrank_view<double,Kokkos::LayoutRight>();
 
 } // namespace Test
 
@@ -417,12 +404,20 @@ int main(int argc, char **argv) {
     Test::test_dyn_rank_view_traits();
     Test::test_dyn_rank_view_span();
 
-#ifdef KOKKOS_ENABLE_CUDA // for cuda
+#ifdef KOKKOS_ENABLE_CUDA
     Test::test_cuda_specific();
     Test::test_check_issue_7604();
     Test::test_access_and_3rd_operator();
     Test::test_dyn_rank_ctor();
-
+    Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,
+                                 Kokkos::CudaSpace>();
+    Test::test_required_allocation_size<double, Kokkos::CudaSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_required_allocation_size<double, Kokkos::HostSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_required_allocation_size<int, Kokkos::CudaSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_unmanaged_dynamicrank_view<double, Kokkos::LayoutRight>();
 #endif
 
     std::cout << "\n*** ALL TESTS PASSED ***\n";
