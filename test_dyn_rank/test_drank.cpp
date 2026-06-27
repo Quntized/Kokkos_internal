@@ -287,44 +287,7 @@ static void test_dyn_rank_ctor() {
             << dview.extent(0) << " , " << dview.extent(1) << std::endl;
 }
 #endif
-#ifdef KOKKOS_ENABLE_CUDA
 
-static void test_dyn_rank_ctor() {
-  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
-      "dynamic_rank", 5, 6);
-  CHECK(drank_lay.extent(0) == 5u);
-  CHECK(drank_lay.extent(1) == 6u);
-  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
-      drank_lay2(drank_lay);
-  CHECK(drank_lay2.extent(0) == 5u);
-  CHECK(drank_lay2.extent(1) == 6u);
-  CHECK(drank_lay2.data() == drank_lay.data());
-  Kokkos::View<double **, Kokkos::LayoutRight, Kokkos::CudaSpace> view_passed(
-      "passed to drank", 5, 3);
-  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
-      drank_lay3(view_passed, 1);
-  // CHECK(drank_lay3.extent(0) == view_passed.extent(0));
-  CHECK(drank_lay3.size() == view_passed.size());
-  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
-      drank_lay4 = drank_lay;
-  CHECK(drank_lay4.data() == drank_lay.data());
-  auto host_mirror = Kokkos::create_mirror_view(drank_lay3);
-  Kokkos::deep_copy(host_mirror, drank_lay3);
-  std::cout << "Kokkos::DynRankView<double,Kokkos::LayoutRight, "
-               "Kokkos::CudaSpace> drank_lay3(view_passed,1) "
-            << host_mirror.size() << ". And Extent " << host_mirror.extent(0)
-            << std::endl; // point host mirror still points the view_passed or
-                          // drank_lay3
-  using StaticView =
-      Kokkos::View<double ***, Kokkos::LayoutRight, Kokkos::CudaSpace>;
-  StaticView sview("mine", 10, 5, 4);
-  Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> dview(
-      sview, 2);
-  std::cout << "Kokkos::DynRankView<double,Kokkos::LayoutRight, "
-               "Kokkos::CudaSpace> dview(sview,2);"
-            << dview.extent(0) << " , " << dview.extent(1) << std::endl;
-}
-#endif
 
 #ifdef KOKKOS_ENABLE_CUDA
 static void test_cuda_specific() {
