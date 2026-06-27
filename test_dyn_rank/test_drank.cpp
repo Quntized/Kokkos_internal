@@ -365,9 +365,9 @@ static void test_required_allocation_size(){
 }
 template<class DataType, class LayOut>
 static void test_unmanaged_dynamicrank_view(){
-    DataType unmngd_raw_pointer = new DataType[50];
+    DataType* unmngd_raw_pointer = new DataType[50];
     LayOut layout(10,5);
-    Kokkos::DynRankView<DataType, Layout> unmng_view(unmngd_raw_pointer, layout);
+    Kokkos::DynRankView<DataType, LayOut> unmng_view(unmngd_raw_pointer, layout);
     unmng_view(3) = 2000.0;
     std::cout<<"Unmanaged_view[3] = "<<unmngd_raw_pointer[3]<<std::endl;
 }
