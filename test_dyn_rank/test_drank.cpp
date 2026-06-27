@@ -352,7 +352,17 @@ static void test_unmanaged_dynamicrank_view(){
     unmng_view(3) = 2000.0;
     std::cout<<"Unmanaged_view[3] = "<<unmngd_raw_pointer[3]<<std::endl;
 }
-
+template <class DataType>
+static void test_scratch_memory_usage() {
+    using ExecSpace = Kokkos::DefaultExecutionSpace;
+    using ScratchSpace = ExecSpace::scatch_memory_space;     // https://github.com/kokkos/kokkos/blob/13453f60b323707b2a1d0a2acdb66743422c8964/containers/src/Kokkos_DynRankView.hpp#L1091
+    using ScratchView = Kokkos::DynRankView<DataType,ScratchSpace>;
+    size_t bytes_needed = ScratchView::shmem_size(10,5);
+    int num_teams = 100;
+    int threads_per_team = 32;
+    Kokkos::TeamPolicy<ExecSpace> policy(num_teams, threads_per_team);
+    
+}
 
 }  // namespace Test
 
