@@ -344,10 +344,16 @@ static void test_required_allocation_size() {
       DynRankType::required_allocation_size(2, 3, 4, 5, 6, 7, 8, 9);
   ASSERT_TRUE((size_length_3 != 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * bytes));   //referring this PR: https://github.com/kokkos/kokkos/pull/9290
 }
-TEST(kokkos_dyn_rank_rank_n_req_allo_size,device_execution){
+TEST(kokkos_dyn_rank_rank_n_req_allo_size, host_execution){
+  test_as_view_of_rank_n<double, Kokkos::LayoutRight, Kokkos::HostSpace>();
+  test_required_allocation_size<double, Kokkos::HostSpace, Kokkos::LayoutRight>();
+}
+#ifdef KOKKOS_ENABLE_CUDA
+TEST(kokkos_dyn_rank_rank_n_req_allo_size, device_execution){
   test_as_view_of_rank_n<double, Kokkos::LayoutRight, Kokkos::CudaSpace>();
   test_required_allocation_size<double, Kokkos::CudaSpace, Kokkos::LayoutRight>();
 }
+#endif
 template <class DataType, class LayOut>
 static void test_unmanaged_dynamicrank_view() {
   DataType *unmngd_raw_pointer = new DataType[50];
@@ -357,7 +363,7 @@ static void test_unmanaged_dynamicrank_view() {
   std::cout << "Unmanaged_view[3] = " << unmngd_raw_pointer[3] << std::endl;
   delete[] unmngd_raw_pointer;
 }
-TEST(kokkos_dyn_rank_unmand,device_execution){
+TEST(kokkos_dyn_rank_unmand, host_execution){
   test_unmanaged_dynamicrank_view<double , Kokkos::LayoutRight>();
 }
 

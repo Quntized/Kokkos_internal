@@ -33,13 +33,7 @@ jobs:
       - name: Cache dependencies (Kokkos + GTest)
         uses: actions/cache@v4
         with:
-          path: |
-            build/_deps/kokkos-src
-            build/_deps/kokkos-build
-            build/_deps/kokkos-subbuild
-            build/_deps/googletest-src
-            build/_deps/googletest-build
-            build/_deps/googletest-subbuild
+          path: build/_deps
           key: deps-host-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
           restore-keys: |
             deps-host-${{ hashFiles('CMakeLists.txt') }}-
@@ -97,13 +91,7 @@ jobs:
       - name: Cache dependencies (Kokkos + GTest, CUDA)
         uses: actions/cache@v4
         with:
-          path: |
-            build/_deps/kokkos-src
-            build/_deps/kokkos-build
-            build/_deps/kokkos-subbuild
-            build/_deps/googletest-src
-            build/_deps/googletest-build
-            build/_deps/googletest-subbuild
+          path: build/_deps
           key: deps-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
           restore-keys: |
             deps-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-
