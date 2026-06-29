@@ -30,17 +30,20 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq cmake g++ libomp-dev
 
-      - name: Cache Kokkos build
+      - name: Cache dependencies (Kokkos + GTest)
         uses: actions/cache@v4
         with:
           path: |
             build/_deps/kokkos-src
             build/_deps/kokkos-build
             build/_deps/kokkos-subbuild
-          key: kokkos-host-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+            build/_deps/googletest-src
+            build/_deps/googletest-build
+            build/_deps/googletest-subbuild
+          key: deps-host-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
           restore-keys: |
-            kokkos-host-${{ hashFiles('CMakeLists.txt') }}-
-            kokkos-host-
+            deps-host-${{ hashFiles('CMakeLists.txt') }}-
+            deps-host-
 
       - name: Configure CMake
         run: |
@@ -91,17 +94,20 @@ jobs:
       - name: Verify GPU access
         run: nvidia-smi
 
-      - name: Cache Kokkos build (CUDA)
+      - name: Cache dependencies (Kokkos + GTest, CUDA)
         uses: actions/cache@v4
         with:
           path: |
             build/_deps/kokkos-src
             build/_deps/kokkos-build
             build/_deps/kokkos-subbuild
-          key: kokkos-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
+            build/_deps/googletest-src
+            build/_deps/googletest-build
+            build/_deps/googletest-subbuild
+          key: deps-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-${{ runner.os }}
           restore-keys: |
-            kokkos-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-
-            kokkos-cuda-gpu-
+            deps-cuda-gpu-${{ hashFiles('CMakeLists.txt') }}-
+            deps-cuda-gpu-
 
       - name: Configure CMake (CUDA)
         run: |
