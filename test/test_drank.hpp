@@ -11,81 +11,47 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <type_traits>
 
-#define CHECK(expr)                                                            \
-  do {                                                                         \
-    if (!(expr)) {                                                             \
-      std::cerr << "FAILED: " #expr << "  (" << __FILE__ << ":" << __LINE__    \
-                << ")\n";                                                      \
-      Kokkos::abort("Test failed!!!");                                         \
-    } else {                                                                   \
-      std::cout << "  PASS: " #expr << "\n";                                   \
-    }                                                                          \
-  } while (0)
-
 namespace Test {
 
-template <typename Scalar, class Space> struct TestDynamicView {
-  using execution_space = typename Space::execution_space;
-  using memory_space = typename Space::memory_space;
-  using view_type = Kokkos::Experimental::DynamicView<Scalar *, Space>;
-
-  static void run(unsigned arg_total_size) {
-    std::cout << "\n=== TestDynamicView ===\n";
-
-    view_type d1;
-    CHECK(d1.is_allocated() == false);
-
-    d1 = view_type("d1", 1024, arg_total_size);
-    view_type d2(d1);
-    view_type d3("d3", 1024, arg_total_size);
-
-    CHECK(d2.is_allocated() == false);
-    CHECK(d3.is_allocated() == false);
-
-    unsigned d_size = arg_total_size / 8;
-    d1.resize_serial(d_size);
-    d3.resize_serial(d_size);
-
-    CHECK(d1.is_allocated() == true);
-    CHECK(d2.is_allocated() == true);
-    CHECK(d3.is_allocated() == true);
-  }
-};
 
 static void test_view_data_type_from_rank() {
   std::cout << "\n=== test_view_data_type_from_rank ===\n";
 
   using Rank4 = Kokkos::Impl::ViewDataTypeFromRank<double, 4>;
-  CHECK((std::is_same_v<Rank4::type, double ****>));
+  ASSERT_TRUE((std::is_same_v<Rank4::type, double ****>));
 }
-
-static void test_dyn_rank_view_basics(unsigned arg_total_size) {
+TEST(kokkos_dyn_rank_data_type, host_execution){
+  test_view_data_type_from_rank();
+}
+template <unsigned arg_total_size = 2>
+static void test_dyn_rank_view_basics() {
   std::cout << "\n=== test_dyn_rank_view_basics ===\n";
 
   Kokkos::DynRankView<double, Kokkos::DefaultExecutionSpace> d4("d4", 1024,
                                                                 arg_total_size);
-  CHECK(d4.rank() == 2u);
+  ASSERT_TRUE((d4.rank() == 2u));
 
   size_t rank = Kokkos::Impl::DynRankDimTraits<void>::computeRank(
       2, 2, 2, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
       KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX);
-  CHECK(rank == 3u);
+  ASSERT_TRUE((rank == 3u));
 
   Kokkos::LayoutRight l(10, 20, 30, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
                         KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
                         KOKKOS_INVALID_INDEX);
   size_t rank2 = Kokkos::Impl::DynRankDimTraits<void>::computeRank(l);
-  CHECK(rank2 == 3u);
+  ASSERT_TRUE((rank2 == 3u));
 
   Kokkos::LayoutRight l2(10, 20, 30, 40, KOKKOS_INVALID_INDEX,
                          KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
                          KOKKOS_INVALID_INDEX);
   auto view_a = Kokkos::view_alloc("sajid", Kokkos::WithoutInitializing);
   size_t rank3 = Kokkos::Impl::DynRankDimTraits<void>::computeRank(view_a, l2);
-  CHECK(rank3 == 4u);
+  ASSERT_TRUE((rank3 == 4u));
 
   Kokkos::LayoutRight l3(10, 20, 30, 40, 50);
   Kokkos::LayoutRight lr =
@@ -93,7 +59,10 @@ static void test_dyn_rank_view_basics(unsigned arg_total_size) {
   size_t rank4 = Kokkos::Impl::DynRankDimTraits<void>::computeRank(lr);
   std::cout << "  INFO: computeRank after createLayout = " << rank4
             << " (input had 5 valid dims)\n";
-  CHECK(rank4 > 0u);
+  ASSERT_TRUE((rank4 > 0u));
+}
+TEST(kokkos_dyn_rank_view_basics, host_execution){
+  test_dyn_rank_view_basics<2>();
 }
 
 static void test_dyn_rank_create_layout() {
@@ -106,8 +75,8 @@ static void test_dyn_rank_create_layout() {
 
   traits::array_layout la =
       Kokkos::Impl::DynRankDimTraits<void>::createLayout<traits>(view_a_b, l4);
-  CHECK(la.dimension[0] == 10u);
-  CHECK(la.dimension[1] == 20u);
+  ASSERT_TRUE((la.dimension[0] == 10u));
+  ASSERT_TRUE((la.dimension[1] == 20u));
 }
 
 static void test_dyn_rank_create_view() {
@@ -118,11 +87,15 @@ static void test_dyn_rank_create_view() {
   auto v = Kokkos::Impl::DynRankDimTraits<void>::createView<view_t>(
       label, 10, 20, 30, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX,
       KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX, KOKKOS_INVALID_INDEX);
-  CHECK(v.label() == "SAJID");
-  CHECK(v.rank() == 3u);
-  CHECK(v.extent(0) == 10u);
-  CHECK(v.extent(1) == 20u);
-  CHECK(v.extent(2) == 30u);
+  ASSERT_TRUE((v.label() == "SAJID"));
+  ASSERT_TRUE((v.rank() == 3u));
+  ASSERT_TRUE((v.extent(0) == 10u));
+  ASSERT_TRUE((v.extent(1) == 20u));
+  ASSERT_TRUE((v.extent(2) == 30u));
+}
+TEST(kokkos_dyn_rank_create_view_layout, host_execution){
+  test_dyn_rank_create_view();
+  test_dyn_rank_create_layout();
 }
 
 static void test_reconstruct_layout() {
@@ -131,8 +104,11 @@ static void test_reconstruct_layout() {
   Kokkos::LayoutRight l5(2, 3, 4);
   int dynrank = 2;
   Kokkos::LayoutRight layra = Kokkos::Impl::reconstructLayout(l5, dynrank);
-  CHECK(layra.dimension[0] == 2u);
-  CHECK(layra.dimension[1] == 3u);
+  ASSERT_TRUE((layra.dimension[0] == 2u));
+  ASSERT_TRUE(layra.dimension[1] == 3u);
+}
+TEST(kokkos_dyn_rankre_layout, host_execution){
+  test_reconstruct_layout();
 }
 
 static void test_dyn_rank_bounds() {
@@ -152,7 +128,10 @@ static void test_dyn_rank_bounds() {
 
   bool ok = Kokkos::Impl::dyn_rank_view_verify_operator_bounds<0>(
       dyn_rank, fake, 5, 10, 0, 0, 0, 0, 0);
-  CHECK(ok == true);
+  ASSERT_TRUE((ok == true));
+}
+TEST(kokkos_dyn_rank_bounds,host_execution){
+  test_dyn_rank_bounds();
 }
 
 static void test_dyn_rank_view_interop() {
@@ -165,28 +144,34 @@ static void test_dyn_rank_view_interop() {
   host_mirror(0, 0) = 42.0;
   Kokkos::deep_copy(dyn_view, host_mirror);
 
-  CHECK(host_mirror(0, 0) == 42.0);
+  ASSERT_TRUE((host_mirror(0, 0) == 42.0));
 
   // When constructed from the same static view, data pointers must match
-  CHECK(dyn_view.data() == static_view.data());
+  ASSERT_TRUE((dyn_view.data() == static_view.data()));
+}
+TEST(kokkos_dyn_rank_interop, host_execution){
+  test_dyn_rank_view_interop();
 }
 
 static void test_dyn_rank_view_traits() {
   std::cout << "\n=== test_dyn_rank_view_traits ===\n";
 
   using kokkos_dview = Kokkos::DynRankView<double, Kokkos::LayoutRight>;
-  CHECK((Kokkos::is_dyn_rank_view_v<kokkos_dview>));
+  ASSERT_TRUE((Kokkos::is_dyn_rank_view_v<kokkos_dview>));
 
-  CHECK((std::is_same_v<kokkos_dview::drvtraits,
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::drvtraits,
                         Kokkos::ViewTraits<double, Kokkos::LayoutRight>>));
-  CHECK((std::is_same_v<kokkos_dview::view_type,
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::view_type,
                         Kokkos::View<double *******, Kokkos::LayoutRight>>));
-  CHECK((std::is_same_v<kokkos_dview::data_type, double>));
-  CHECK((std::is_same_v<kokkos_dview::value_type, double>));
-  CHECK((std::is_same_v<kokkos_dview::array_layout, Kokkos::LayoutRight>));
-  CHECK((std::is_same_v<kokkos_dview::pointer_type, double *>));
-  CHECK((std::is_same_v<kokkos_dview::reference_type, double &>));
-  CHECK((std::is_same_v<kokkos_dview::memory_traits, Kokkos::MemoryTraits<0>>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::data_type, double>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::value_type, double>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::array_layout, Kokkos::LayoutRight>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::pointer_type, double *>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::reference_type, double &>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::memory_traits, Kokkos::MemoryTraits<0>>));
+}
+TEST(kokkos_dyn_rank_traits, host_execution){
+  test_dyn_rank_view_traits();
 }
 
 static void test_dyn_rank_view_span() {
@@ -195,23 +180,25 @@ static void test_dyn_rank_view_span() {
   using kokkos_dview = Kokkos::DynRankView<double, Kokkos::LayoutRight>;
   kokkos_dview drank_m("drank_m", 10, 20, 30);
 
-  CHECK(drank_m.rank() == 3u);
-  CHECK(drank_m.span_is_contiguous());
-  CHECK(drank_m.size() == 10u * 20u * 30u);
-  CHECK(drank_m.is_allocated());
-  CHECK(drank_m.use_count() >= 1);
+  ASSERT_TRUE((drank_m.rank() == 3u));
+  ASSERT_TRUE((drank_m.size() == 10u * 20u * 30u));
+  ASSERT_TRUE((drank_m.is_allocated()));
+  ASSERT_TRUE((drank_m.use_count() >= 1));
 
   // LayoutRight: last dimension has stride 1
-  CHECK(drank_m.extent(0) == 10u);
-  CHECK(drank_m.extent(1) == 20u);
-  CHECK(drank_m.extent(2) == 30u);
+  ASSERT_TRUE((drank_m.extent(0) == 10u));
+  ASSERT_TRUE((drank_m.extent(1) == 20u));
+  ASSERT_TRUE((drank_m.extent(2) == 30u));
+}
+TEST(kokkos_dyn_rank_span, host_execution){
+  test_dyn_rank_view_span();
 }
 #ifdef KOKKOS_ENABLE_CUDA
 static void test_check_issue_7604() {
   Kokkos::DynRankView<double, Kokkos::LayoutRight> drank_lay("dynamic_rank", 5,
                                                              6);
-  CHECK(drank_lay.extent(0) == 5u);
-  CHECK(drank_lay.extent(1) == 6u);
+  ASSERT_TRUE((drank_lay.extent(0) == 5u));
+  ASSERT_TRUE((drank_lay.extent(1) == 6u));
   Kokkos::parallel_for(
       "TestDynamics for issue 7604",
       Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0, 0}, {5, 6}),
@@ -223,13 +210,17 @@ static void test_check_issue_7604() {
   Kokkos::deep_copy(host_mirror, drank_lay);
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < 6; j++) {
-      CHECK(host_mirror(i, j) == i * 10 + j);
+      ASSERT_TRUE((host_mirror(i, j) == i * 10 + j));
     }
   }
 }
+TEST(kokkos_dyn_rank_issue_7604, device_execution){
+  test_check_issue_7604();
+}
 #endif
 #ifdef KOKKOS_ENABLE_CUDA
-template <int N = 100000> static void test_access_and_3rd_operator() {
+template <int N = 100000> 
+static void test_access_and_3rd_operator() {
   Kokkos::DynRankView<double> one;
   Kokkos::DynRankView<double> array_like("allocated array", N);
   Kokkos::Timer timer;
@@ -245,8 +236,11 @@ template <int N = 100000> static void test_access_and_3rd_operator() {
   auto host_view = Kokkos::create_mirror_view(array_like);
   Kokkos::deep_copy(host_view, array_like);
   for (int i = 0; i < N; i++) {
-    CHECK(host_view(i) == i * 2.0 + 2.0);
+    ASSERT_TRUE((host_view(i) == i * 2.0 + 2.0));
   }
+}
+TEST(kokkos_dyn_rank_3rd_oper, device_execution){
+  test_access_and_3rd_operator<2>();
 }
 #endif
 #ifdef KOKKOS_ENABLE_CUDA
@@ -254,22 +248,22 @@ template <int N = 100000> static void test_access_and_3rd_operator() {
 static void test_dyn_rank_ctor() {
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
       "dynamic_rank", 5, 6);
-  CHECK(drank_lay.extent(0) == 5u);
-  CHECK(drank_lay.extent(1) == 6u);
+  ASSERT_TRUE((drank_lay.extent(0) == 5u));
+  ASSERT_TRUE((drank_lay.extent(1) == 6u));
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
       drank_lay2(drank_lay);
-  CHECK(drank_lay2.extent(0) == 5u);
-  CHECK(drank_lay2.extent(1) == 6u);
-  CHECK(drank_lay2.data() == drank_lay.data());
+  ASSERT_TRUE((drank_lay2.extent(0) == 5u));
+  ASSERT_TRUE((drank_lay2.extent(1) == 6u));
+  ASSERT_TRUE((drank_lay2.data() == drank_lay.data()));
   Kokkos::View<double **, Kokkos::LayoutRight, Kokkos::CudaSpace> view_passed(
       "passed to drank", 5, 3);
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
       drank_lay3(view_passed, 1);
   // CHECK(drank_lay3.extent(0) == view_passed.extent(0));
-  CHECK(drank_lay3.size() == view_passed.size());
+  ASSERT_TRUE((drank_lay3.size() == view_passed.size()));
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace>
       drank_lay4 = drank_lay;
-  CHECK(drank_lay4.data() == drank_lay.data());
+  ASSERT_TRUE((drank_lay4.data() == drank_lay.data()));
   auto host_mirror = Kokkos::create_mirror_view(drank_lay3);
   Kokkos::deep_copy(host_mirror, drank_lay3);
   std::cout << "Kokkos::DynRankView<double,Kokkos::LayoutRight, "
@@ -286,6 +280,9 @@ static void test_dyn_rank_ctor() {
                "Kokkos::CudaSpace> dview(sview,2);"
             << dview.extent(0) << " , " << dview.extent(1) << std::endl;
 }
+TEST(kokkos_dyn_rank_ctor, device_execution){
+  test_dyn_rank_ctor();
+}
 #endif
 
 
@@ -294,13 +291,13 @@ static void test_cuda_specific() {
   std::cout << "\n=== test_cuda_specific ===\n";
 
   using kokkos_dview = Kokkos::DynRankView<double, Kokkos::LayoutRight>;
-  CHECK((std::is_same_v<kokkos_dview::execution_space, Kokkos::Cuda>));
-  CHECK((std::is_same_v<kokkos_dview::memory_space, Kokkos::CudaSpace>));
-  CHECK((std::is_same_v<kokkos_dview::device_type,
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::execution_space, Kokkos::Cuda>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::memory_space, Kokkos::CudaSpace>));
+  ASSERT_TRUE((std::is_same_v<kokkos_dview::device_type,
                         Kokkos::Device<Kokkos::Cuda, Kokkos::CudaSpace>>));
 
   // Host mirror should live on HostSpace
-  CHECK((std::is_same_v<
+  ASSERT_TRUE((std::is_same_v<
          kokkos_dview::host_mirror_type,
          Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::HostSpace>>));
 
@@ -321,6 +318,9 @@ static void test_cuda_specific() {
       3, rankk, dummy_tracker, fake, 5, 10, 0, 0, 0, 0, 0);
   std::cout << "  PASS: CUDA bounds check did not abort\n";
 }
+TEST(kokkos_dyn_rank_cuda_specific, device_execution){
+  test_cuda_specific();
+}
 #endif
 template <class DataType, class LayOut, class ExecSpace>
 static void test_as_view_of_rank_n() {
@@ -329,7 +329,7 @@ static void test_as_view_of_rank_n() {
   using stat_type = decltype(stat_view);
   bool res =
       std::is_same_v<stat_type, Kokkos::View<DataType **, LayOut, ExecSpace>>;
-  CHECK(res);
+  ASSERT_TRUE((res));
 }
 template <class DataType, class ExecSpace, class LayOut>
 static void test_required_allocation_size() {
@@ -337,13 +337,23 @@ static void test_required_allocation_size() {
   const size_t bytes = sizeof(DataType);
   auto size_length_1 = DynRankType::required_allocation_size(10);
   DynRankType rank_1("Initiate", 10);
-  CHECK(size_length_1 == 10 * bytes);
+  ASSERT_TRUE((size_length_1 == 10 * bytes));
   auto size_length_2 = DynRankType::required_allocation_size(10, 20);
-  CHECK(size_length_2 == 10 * 20 * bytes);
+  ASSERT_TRUE(size_length_2 == 10 * 20 * bytes);
   auto size_length_3 =
       DynRankType::required_allocation_size(2, 3, 4, 5, 6, 7, 8, 9);
-  CHECK(size_length_3 != 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * bytes);
+  ASSERT_TRUE((size_length_3 != 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * bytes));   //referring this PR: https://github.com/kokkos/kokkos/pull/9290
 }
+TEST(kokkos_dyn_rank_rank_n_req_allo_size, host_execution){
+  test_as_view_of_rank_n<double, Kokkos::LayoutRight, Kokkos::HostSpace>();
+  test_required_allocation_size<double, Kokkos::HostSpace, Kokkos::LayoutRight>();
+}
+#ifdef KOKKOS_ENABLE_CUDA
+TEST(kokkos_dyn_rank_rank_n_req_allo_size, device_execution){
+  test_as_view_of_rank_n<double, Kokkos::LayoutRight, Kokkos::CudaSpace>();
+  test_required_allocation_size<double, Kokkos::CudaSpace, Kokkos::LayoutRight>();
+}
+#endif
 template <class DataType, class LayOut>
 static void test_unmanaged_dynamicrank_view() {
   DataType *unmngd_raw_pointer = new DataType[50];
@@ -353,41 +363,8 @@ static void test_unmanaged_dynamicrank_view() {
   std::cout << "Unmanaged_view[3] = " << unmngd_raw_pointer[3] << std::endl;
   delete[] unmngd_raw_pointer;
 }
+TEST(kokkos_dyn_rank_unmand, host_execution){
+  test_unmanaged_dynamicrank_view<double , Kokkos::LayoutRight>();
+}
 
 } // namespace Test
-
-int main(int argc, char **argv) {
-  Kokkos::initialize(argc, argv);
-  {
-    Test::TestDynamicView<double, Kokkos::DefaultExecutionSpace>::run(1024);
-    Test::test_view_data_type_from_rank();
-    Test::test_dyn_rank_view_basics(1024);
-    Test::test_dyn_rank_create_layout();
-    Test::test_dyn_rank_create_view();
-    Test::test_reconstruct_layout();
-    Test::test_dyn_rank_bounds();
-    Test::test_dyn_rank_view_interop();
-    Test::test_dyn_rank_view_traits();
-    Test::test_dyn_rank_view_span();
-
-#ifdef KOKKOS_ENABLE_CUDA
-    Test::test_cuda_specific();
-    Test::test_check_issue_7604();
-    Test::test_access_and_3rd_operator();
-    Test::test_dyn_rank_ctor();
-    Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,
-                                 Kokkos::CudaSpace>();
-    Test::test_required_allocation_size<double, Kokkos::CudaSpace,
-                                        Kokkos::LayoutRight>();
-    Test::test_required_allocation_size<double, Kokkos::HostSpace,
-                                        Kokkos::LayoutRight>();
-    Test::test_required_allocation_size<int, Kokkos::CudaSpace,
-                                        Kokkos::LayoutRight>();
-    Test::test_unmanaged_dynamicrank_view<double, Kokkos::LayoutRight>();
-#endif // cuda test
-
-    std::cout << "\n*** ALL TESTS PASSED ***\n";
-  }
-  Kokkos::finalize();
-  return 0;
-}
