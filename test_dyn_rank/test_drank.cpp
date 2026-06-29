@@ -250,6 +250,7 @@ template <int N = 100000> static void test_access_and_3rd_operator() {
 }
 #endif
 #ifdef KOKKOS_ENABLE_CUDA
+
 static void test_dyn_rank_ctor() {
   Kokkos::DynRankView<double, Kokkos::LayoutRight, Kokkos::CudaSpace> drank_lay(
       "dynamic_rank", 5, 6);
@@ -287,6 +288,7 @@ static void test_dyn_rank_ctor() {
 }
 #endif
 
+
 #ifdef KOKKOS_ENABLE_CUDA
 static void test_cuda_specific() {
   std::cout << "\n=== test_cuda_specific ===\n";
@@ -320,6 +322,37 @@ static void test_cuda_specific() {
   std::cout << "  PASS: CUDA bounds check did not abort\n";
 }
 #endif
+template <class DataType, class LayOut, class ExecSpace>
+static void test_as_view_of_rank_n() {
+  Kokkos::DynRankView<DataType, LayOut, ExecSpace> dyn_rank("DynRank", 10, 20);
+  auto stat_view = Kokkos::Impl::as_view_of_rank_n<2>(dyn_rank);
+  using stat_type = decltype(stat_view);
+  bool res =
+      std::is_same_v<stat_type, Kokkos::View<DataType **, LayOut, ExecSpace>>;
+  CHECK(res);
+}
+template <class DataType, class ExecSpace, class LayOut>
+static void test_required_allocation_size() {
+  using DynRankType = Kokkos::DynRankView<DataType, LayOut, ExecSpace>;
+  const size_t bytes = sizeof(DataType);
+  auto size_length_1 = DynRankType::required_allocation_size(10);
+  DynRankType rank_1("Initiate", 10);
+  CHECK(size_length_1 == 10 * bytes);
+  auto size_length_2 = DynRankType::required_allocation_size(10, 20);
+  CHECK(size_length_2 == 10 * 20 * bytes);
+  auto size_length_3 =
+      DynRankType::required_allocation_size(2, 3, 4, 5, 6, 7, 8, 9);
+  CHECK(size_length_3 != 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9 * bytes);
+}
+template <class DataType, class LayOut>
+static void test_unmanaged_dynamicrank_view() {
+  DataType *unmngd_raw_pointer = new DataType[50];
+  LayOut layout(10, 5);
+  Kokkos::DynRankView<DataType, LayOut, Kokkos::HostSpace> unmng_view(unmngd_raw_pointer, layout);
+  unmng_view(3) = 2000.0;
+  std::cout << "Unmanaged_view[3] = " << unmngd_raw_pointer[3] << std::endl;
+  delete[] unmngd_raw_pointer;
+}
 
 } // namespace Test
 
@@ -337,12 +370,21 @@ int main(int argc, char **argv) {
     Test::test_dyn_rank_view_traits();
     Test::test_dyn_rank_view_span();
 
-#ifdef KOKKOS_ENABLE_CUDA // for cuda
+#ifdef KOKKOS_ENABLE_CUDA
     Test::test_cuda_specific();
     Test::test_check_issue_7604();
     Test::test_access_and_3rd_operator();
     Test::test_dyn_rank_ctor();
-#endif
+    Test::test_as_view_of_rank_n<double, Kokkos::LayoutRight,
+                                 Kokkos::CudaSpace>();
+    Test::test_required_allocation_size<double, Kokkos::CudaSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_required_allocation_size<double, Kokkos::HostSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_required_allocation_size<int, Kokkos::CudaSpace,
+                                        Kokkos::LayoutRight>();
+    Test::test_unmanaged_dynamicrank_view<double, Kokkos::LayoutRight>();
+#endif // cuda test
 
     std::cout << "\n*** ALL TESTS PASSED ***\n";
   }
