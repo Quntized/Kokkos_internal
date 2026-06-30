@@ -1,31 +1,25 @@
-cmake_minimum_required(VERSION 3.21)
-project(kokkos_internal CXX)
+cmake_minimum_required(VERSION 3.21) project(kokkos_internal CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_STANDARD 20) set(CMAKE_CXX_STANDARD_REQUIRED ON) message(
+        STATUS "Kokkos is building with C++ Standard: ${CMAKE_CXX_STANDARD}")
+        include(FetchContent) set(KOKKOS_FETCH_TAG "5.1.1" CACHE STRING
+                                                   "Kokkos git tag to fetch")
+            find_package(Kokkos 5.1.1 QUIET) if (NOT Kokkos_FOUND)
+                message(STATUS "Kokkos not found locally - fetching tag "
+                               "${KOKKOS_FETCH_TAG} via FetchContent")
+                    FetchContent_Declare(kokkos GIT_REPOSITORY https
+                                         : // github.com/kokkos/kokkos.git
+                                         GIT_TAG ${
+                                             KOKKOS_FETCH_TAG} GIT_SHALLOW ON)
+                        FetchContent_MakeAvailable(kokkos) else()
+                            message(STATUS
+                                    "Using pre-installed Kokkos: ${Kokkos_DIR}")
+                                endif() FetchContent_Declare(
+                                    googletest GIT_REPOSITORY https
+                                    : // github.com/google/googletest.git
+                                    GIT_TAG v1 .17.0)
+                                    FetchContent_MakeAvailable(googletest)
 
-include(FetchContent)
-set(KOKKOS_FETCH_TAG  "5.1.1" CACHE STRING "Kokkos git tag to fetch")
-find_package(Kokkos 5.1.1 QUIET)
-if(NOT Kokkos_FOUND)
-  message(STATUS "Kokkos not found locally - fetching tag ${KOKKOS_FETCH_TAG} via FetchContent")
-  FetchContent_Declare(
-    kokkos
-    GIT_REPOSITORY https://github.com/kokkos/kokkos.git
-    GIT_TAG        ${KOKKOS_FETCH_TAG}
-    GIT_SHALLOW    ON
-  )
-  FetchContent_MakeAvailable(kokkos)
-else()
-  message(STATUS "Using pre-installed Kokkos: ${Kokkos_DIR}")
-endif()
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG v1.17.0
-)
-FetchContent_MakeAvailable(googletest)
+                                        enable_testing()
 
-enable_testing()
-
-add_subdirectory(test)
+                                            add_subdirectory(test)
