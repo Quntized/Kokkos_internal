@@ -4,7 +4,7 @@
 
 This repository contains all the files inside `kokkos`, the repository's test files (apart from Kokkos). My entire goal for this project is to debug in Kokkos and find any potential issue hidden in internal functions. 
 
-This repo will have distinct file containing internal test cases. (Currently it only contains the dynamic rank part, and further will be added in future)
+This repo will have distinct file containing internal test cases. (Currently it only contains the dynamic rank part, kokkos_pair, raw mdspan (a bit) and further will be added in future)
 
 ## Quick Build (self-contained)
 
