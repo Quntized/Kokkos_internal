@@ -1,3 +1,4 @@
+#include "desul_test.hpp"
 #include "kokkos_pair_investigation.hpp"
 #include "kokkos_raw_mdspan.hpp"
 #include "test_drank.hpp"
