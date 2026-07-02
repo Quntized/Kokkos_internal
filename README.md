@@ -43,3 +43,4 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+**Reference:** [Kokkos Core Library](https://github.com/kokkos/kokkos)
