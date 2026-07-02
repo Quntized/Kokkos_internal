@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(kokkos_internal CXX)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "The C++ standard to use")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message(STATUS "Kokkos is building with C++ Standard: ${CMAKE_CXX_STANDARD}")
 include(FetchContent)

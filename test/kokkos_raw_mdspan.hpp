@@ -61,6 +61,9 @@ TEST(maybe_static_array, line_206_start) {
   using HybridArray =
       mdspan_detail::maybe_static_array<size_t, size_t, dynamic_extent, 10,
                                         dynamic_extent, 30>;
+  using static_array_impl_may_bug = mdspan_detail::static_array_impl<0,int,15,25,35>;
+  auto constexpr val = static_array_impl_may_bug::get<1>();
+  EXPECT_EQ(val, 25);
   // HybridArray my_extents{50};
   // using static_val_type = HybridArray::static_vals_t;
   // using value_type = static_val_type::value_type;   inaccessible as private
