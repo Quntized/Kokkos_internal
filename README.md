@@ -9,6 +9,7 @@ This repo will have distinct file containing internal test cases. (Currently it 
 ## Quick Build (self-contained)
 
 
+You can build with either way.
 
 The project fetches Kokkos automatically via CMake `FetchContent`:
 
