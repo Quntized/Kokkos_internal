@@ -62,4 +62,16 @@ TEST(DesulAtomicTest, CmpExchFailureOrder_TypeMapping) {
           desul::Impl::cmpexch_failure_memory_order<desul::MemoryOrderSeqCst>,
           desul::MemoryOrderSeqCst>::value));
 }
+TEST(DesulNumericLimitsTest,atomics_include_desul_atomics_Common_hpp_L82 ){
+    constexpr uint32_t desul_max = desul::Impl::numeric_limits_max<uint32_t>::value;
+    constexpr uint32_t std_max = std::numeric_limits<uint32_t>::max();
+    EXPECT_EQ(desul_max, std_max) << "Doesn't match";
+    constexpr uint64_t desul_max64 = desul::Impl::numeric_limits_max<uint64_t>::value;
+    constexpr uint64_t std_max64 = std::numeric_limits<uint64_t>::max();
+    EXPECT_EQ(desul_max64, std_max64) << "Doesn't match";
+    auto val = sizeof(int64_t);
+    EXPECT_EQ(val, 8) << "Doesn't match";
+    ASSERT_TRUE((std::is_same_v<desul::Impl::atomic_compare_exchange_t<int64_t>, int64_t>)) << "Doesn't match";
+}
+
 } // namespace Test

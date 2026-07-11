@@ -9,7 +9,7 @@ if(NOT PROJECT_NAME)
 endif()
 
 add_executable(Kokkos_qun_test test_dyn_rank.cpp)
-target_link_libraries(Kokkos_qun_test PRIVATE Kokkos::kokkos GTest::gtest)
+target_link_libraries(Kokkos_qun_test PRIVATE Kokkos::kokkos Kokkos::kokkoscore GTest::gtest)
 
 add_test(
   NAME    Kokkos_qun_test
