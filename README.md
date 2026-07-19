@@ -44,4 +44,8 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+**Note** : coding agent was used only for code review as i work independently, i need a tool for checking things, that's why. 
+
+Thank you for your time.
+
 **Reference:** [Kokkos Core Library](https://github.com/kokkos/kokkos)
