@@ -50,8 +50,8 @@ TEST(ViewArrayAnalysis,ViewArrayAnalysis_line_289){
     std::cout<<"mdArgN2 " <<mdargn2<<"\n";
     std::cout<<"mdrank "<<mdrank<<"\n";
     std::cout<<"drank_dyn "<<mdrankdyn<<"\n";
-
-
+    static_assert(std::is_same_v<Kokkos::Impl::ViewArrayAnalysis<double***>::dynamic_dimension,Kokkos::Impl::ViewDimension<0,0,0>>, "ViewArrayAnalysis<double***>::dynamic_dimension should be Kokkos::Impl::ViewDimension<0,0,0>");
+    static_assert(std::is_same_v<Kokkos::Impl::ViewArrayAnalysis<double***>::dynamic_dimension,Kokkos::Impl::ViewArrayAnalysis<double***>::dimension>, "ViewArrayAnalysis<double***>::dynamic_dimension should be Kokkos::Impl::ViewArrayAnalysis<double***>::dimension");
 
 }
 }
