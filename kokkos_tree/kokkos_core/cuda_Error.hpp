@@ -3,7 +3,8 @@
 #include <Cuda/Kokkos_Cuda_Error.hpp>
 #include <stdexcept>
 #include <type_traits> // That's for std::is_void_v
-
+#include <cuda_runtime_api.h>
+#include <Cuda/Kokkos_Cuda_BlockSize_Deduction.hpp>
 namespace Test{
 TEST(KokkosCudaError, InternalErrorThrowsRuntimeError){
     EXPECT_THROW({
@@ -69,5 +70,43 @@ TEST(kokkos_internal, InterCudaFunctorCase03){
     for(int i = 0; i < N; ++i) {
         EXPECT_EQ(h_data(i), i * 2) << "Void overload failed!";
     }
+}
+TEST(kokkos_internal, CudaWarpAllocationGranularity){
+    cudaDeviceProp prop;
+    prop.major = 8;
+    prop.minor = 6;
+    EXPECT_EQ(Kokkos::Impl::cuda_warp_per_sm_allocation_granularity(prop), 4u) << "Expected 4 warps per SM for Ampere";
+    prop.major = 6;
+    prop.minor = 0;
+    EXPECT_EQ(Kokkos::Impl::cuda_warp_per_sm_allocation_granularity(prop), 2u) << "Expected 2 warps per SM for Pascal";
+    prop.major = 6;
+    prop.minor = 1;
+    EXPECT_EQ(Kokkos::Impl::cuda_warp_per_sm_allocation_granularity(prop), 4u) << "Expected 4 warps per SM for Pascal";
+    prop.major = 23;
+    prop.minor = 0;
+    EXPECT_THROW({Kokkos::Impl::cuda_warp_per_sm_allocation_granularity(prop);},std::runtime_error) << "Expected runtime error for unknown architecture";
+}
+TEST(kokkos_internal, CudaBlockSizeDeduction){
+    cudaDeviceProp prop;
+    prop.major = 8;
+    prop.sharedMemPerBlockOptin = 100000;
+    prop.reservedSharedMemPerBlock = 1024;
+    size_t shrd_mem = Kokkos::Impl::get_max_shared_mem_per_block(prop);
+    EXPECT_EQ(shrd_mem, 98976) << "Shared memory per block calculation failed for Ampere";
+}
+TEST(kokkos_internal, CudaMaxWarpPerSmRegisters){
+    cudaDeviceProp prop;
+    cudaFuncAttributes attr;
+    prop.major = 8;
+    prop.minor = 6;
+    prop.warpSize = 32;
+    prop.regsPerBlock = 65536;
+    attr.numRegs = 32;
+    int optimal_wraps = Kokkos::Impl::cuda_max_warps_per_sm_registers(prop,attr);
+    EXPECT_EQ(optimal_warps, 64)<< "Expected 32 warps per SM for Ampere with 32 registers per thread";
+    attr.numRegs = 64;
+    int optimal_wraps = Kokkos::Impl::cuda_max_warps_per_sm_registers(prop,attr);
+    EXPECT_EQ(optimal_warps, 32)<< "Expected 16 warps per SM for Ampere with 64 registers per thread";
+    
 }
 }
