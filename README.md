@@ -8,9 +8,11 @@ This repo will have distinct file containing internal test cases. (Currently it 
 ## Things That has been changed to the UPSTREAM:
 List of contributions that have been made to the UPSTREAM repo Kokkos:
 
+This is here for me to track what has been changed through my end.
+
 *kokks:*
 
-[(Fix ambiguous overload in Kokkos::resize with ExecutionSpace](https://github.com/kokkos/kokkos/pull/9128) .
+1) [Fix ambiguous overload in Kokkos::resize with ExecutionSpace](https://github.com/kokkos/kokkos/pull/9128) .
 2) [Fix silent state mutation in tuning variable ID registry](https://github.com/kokkos/kokkos/pull/9096)
 3) [Fix: Add bounds check to prevent OOB access in tuner dimension indexing](https://github.com/kokkos/kokkos/pull/9090)
 4) [Fix: Correct type reference in IndexTypeTrait error reporting](https://github.com/kokkos/kokkos/pull/9085)
@@ -27,6 +29,11 @@ List of contributions that have been made to the UPSTREAM repo Kokkos:
 
 1) [Remove templated get function from static_array_impl::get ](https://github.com/kokkos/mdspan/pull/459)
 2) [Fix return type of layout_padded operator](https://github.com/kokkos/mdspan/pull/465)
+
+*Kokkos_Core_Wiki:*
+
+1) [Docs chapter numbering fix.](https://github.com/kokkos/kokkos-core-wiki/pull/872)
+2) [One left out chapter number fix](https://github.com/kokkos/kokkos-core-wiki/pull/875).
 
 ## Additional Project Linked to this Repo:
 
