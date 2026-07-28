@@ -10,30 +10,30 @@ List of contributions that have been made to the UPSTREAM repo Kokkos:
 
 *kokks:*
 
-1) (Fix ambiguous overload in Kokkos::resize with ExecutionSpace)[https://github.com/kokkos/kokkos/pull/9128]
-2) (Fix silent state mutation in tuning variable ID registry)[https://github.com/kokkos/kokkos/pull/9096]
-3) (Fix: Add bounds check to prevent OOB access in tuner dimension indexing)[https://github.com/kokkos/kokkos/pull/9090]
-4) (Fix: Correct type reference in IndexTypeTrait error reporting)[https://github.com/kokkos/kokkos/pull/9085]
-5) (Fix: unset the variable _UPPERCASE_CMAKE_BUILD_TYPE properly due to missing _)[https://github.com/kokkos/kokkos/pull/9213]
-6) (CMake:Remove dead-code in cuda compiler_id_cmake)[https://github.com/kokkos/kokkos/pull/9204]
-7) (small typo in kokkos_function.cmake)[https://github.com/kokkos/kokkos/pull/9169]
-8) (Fix: Address FIXMEs in DynRankView required_allocation_size and add unit tests)[https://github.com/kokkos/kokkos/pull/9290]
-9) (Fix typos, Bash quoting, and variable initialization in compiler scripts )[https://github.com/kokkos/kokkos/pull/9273]
-10) (Refactoring AMD architecture loops)[https://github.com/kokkos/kokkos/pull/9217]
-11) (A small typo in README.md)[https://github.com/kokkos/kokkos/pull/9355]
-12) (Duplicate source file accumulation in CMake test generation)[https://github.com/kokkos/kokkos/pull/9135]
+[(Fix ambiguous overload in Kokkos::resize with ExecutionSpace](https://github.com/kokkos/kokkos/pull/9128) .
+2) [Fix silent state mutation in tuning variable ID registry](https://github.com/kokkos/kokkos/pull/9096)
+3) [Fix: Add bounds check to prevent OOB access in tuner dimension indexing](https://github.com/kokkos/kokkos/pull/9090)
+4) [Fix: Correct type reference in IndexTypeTrait error reporting](https://github.com/kokkos/kokkos/pull/9085)
+5) [Fix: unset the variable _UPPERCASE_CMAKE_BUILD_TYPE properly due to missing _](https://github.com/kokkos/kokkos/pull/9213)
+6) [CMake:Remove dead-code in cuda compiler_id_cmake](https://github.com/kokkos/kokkos/pull/9204)
+7) [small typo in kokkos_function.cmake](https://github.com/kokkos/kokkos/pull/9169)
+8) [Fix: Address FIXMEs in DynRankView required_allocation_size and add unit tests](https://github.com/kokkos/kokkos/pull/9290)
+9) [Fix typos, Bash quoting, and variable initialization in compiler scripts ](https://github.com/kokkos/kokkos/pull/9273)
+10) [Refactoring AMD architecture loops](https://github.com/kokkos/kokkos/pull/9217)
+11) [A small typo in README.md](https://github.com/kokkos/kokkos/pull/9355)
+12) [Duplicate source file accumulation in CMake test generation](https://github.com/kokkos/kokkos/pull/9135)
 
 *Mdspan:*
 
-1) (Remove templated get function from static_array_impl::get )[https://github.com/kokkos/mdspan/pull/459]
-2) (Fix return type of layout_padded operator)[https://github.com/kokkos/mdspan/pull/465]
+1) [Remove templated get function from static_array_impl::get ](https://github.com/kokkos/mdspan/pull/459)
+2) [Fix return type of layout_padded operator](https://github.com/kokkos/mdspan/pull/465)
 
 ## Additional Project Linked to this Repo:
 
-1) (CMake_project)[https://github.com/Quntized/CMake_project_preparation]:
-    In this repository systematically approach which is used in Kokkos cmake files, using official (CMake)[https://cmake.org/cmake/help/latest/index.html] and as well as (Kokkos_CMake)[https://github.com/kokkos/kokkos/tree/develop/cmake] for proper investigation.
-2) (Cuda_code)[https://github.com/Quntized/Cuda_code]:
-    In this repository the kokkos official cuda folder investigation (Kokkos_Cuda)[https://github.com/kokkos/kokkos/tree/develop/core/src/Cuda] and as well as (Cuda)[https://docs.nvidia.com/cuda/cuda-programming-guide/index.html] official documentations used for proper investigation.
+1) [CMake_project](https://github.com/Quntized/CMake_project_preparation):
+    In this repository systematically approach which is used in Kokkos cmake files, using official [CMake](https://cmake.org/cmake/help/latest/index.html) and as well as [Kokkos_CMake](https://github.com/kokkos/kokkos/tree/develop/cmake) for proper investigation.
+2) [Cuda_code](https://github.com/Quntized/Cuda_code):
+    In this repository the kokkos official cuda folder investigation [Kokkos_Cuda](https://github.com/kokkos/kokkos/tree/develop/core/src/Cuda) and as well as [Cuda](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html) official documentations used for proper investigation.
 
 
 ## Quick Build (self-contained)
