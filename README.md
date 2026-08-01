@@ -42,6 +42,9 @@ This is here for me to track what has been changed through my end.
 2) [Cuda_code](https://github.com/Quntized/Cuda_code):
     In this repository the kokkos official cuda folder investigation [Kokkos_Cuda](https://github.com/kokkos/kokkos/tree/develop/core/src/Cuda) and as well as [Cuda](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html) official documentations used for proper investigation.
 
+3) [DiscDomComKok](https://github.com/Quntized/DiscDomCom) : In this repository I tried some idea and tried some initial phase though not able to perfectly implement it. But I could work in future. If you find it useful, you can knock me. We can discuss grabbing with coffee. I would really appreciate.
+
+
 
 ## Quick Build (self-contained)
 
