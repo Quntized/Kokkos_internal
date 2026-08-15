@@ -51,9 +51,36 @@ auto make_Bview_from_checked_accessor(const ExtentsType &extents){
         expected_size *= extents.extent(r);
     }
     auto size = view.size();
-    return std::pair(view, size);
+    return std::pair(view, size, expected_size);
 }
-template<class T, >
+template<class T, class ExtentsType, class LayoutType>
 auto make_BView_from_mapping_and_padding(const ExtentsType &extents, std::size_t padding){
-
+    using extents_type = ExtentsType;
+    using layout_type = LayoutType;
+    mapping_type = typename layout_type::template mapping_type<ExtentsType>;
+    using accessor_type = Kokkos::Impl::CheckedReferenceCountedAccessor<T,typename ExecutionSpace::memory_space>;
+    using view_type = Kokkos::Impl::BV::BasicView<T,extents_type,layout_type, accessor_type>;
+    auto mapping = mappint_type(extents, padding);
+    view_type("Bview", mapping);
+    for (int r =0; r<static_cast<int>(view_type::rank()); r++){
+        expected_size *= view.extent(r);
+    }
+    std::size_t size = view.size();
+    return std::pair(view, size, expected_size);
 }
+template <class ExecutionSpace, class FunctorType,class T, class ExtentsType, class LayoutType>
+auto make_parallel_run_from_extents(const ExtentsType &extents){
+    using extents_type = ExtentsType;
+    using layout_type = LayoutType;
+    //using mapping_type = typename layout_type::mapping_type<ExtentsType>;
+    using accessor_type = Kokkos::Impl::CheckedReferenceCountedAccessor<T,typename ExecutionSpace::memory_space>;
+    using view_type = Kokkos::Impl::BV::BasicView<T,extents_type,layout_type,accessor_type>;
+    auto view = view_type("Bview", extents);
+    auto mdrange = make_mdrange_from_extents<ExecutionSpace>(extents,std::make_index_sequence<ExtentsType::rank()>{});
+    Kokkos::parallel_for("Label", mdrange_policy, mdrange, FuntorType{});
+    auto host_view = create_mirror_view(view);
+    Kokkos::deep_copy(host_view,view);
+    return host_view;
+}
+
+
