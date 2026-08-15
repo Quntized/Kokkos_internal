@@ -1,26 +1,42 @@
 #include <Kokkos_Core.hpp>
 #include <array>
+#include <vector>
 
-namespace kokkos_num{
-    
-    template <class... Dim>
-    struct vec_perp{
-        static constexpr int dim = sizeof...(Dim);
-        std::array<double, dim> data;
-        template<typename... Values>
-        vec_perp(Values... values) : data{static_cast<double>(values)...} {}
-    }
-    
-    struct Foo{
-        int val;
-    }
+
+namespace vector_prep{
+    template <class ValueType>
+    using KokkosView = Kokkos::View<ValueType*,Kokkos::LayoutLeft, Kokkos::CudaSpace>;
+    template<class ValueType>
+    using Vector = std::vector<ValueType>;
 
 }
 
-using view_foo = Kokkos::View<kokkos_num::Foo*>;
-view_foo foo_view("foo_view", 10);
-using md = Kokkos::MDRangePolicy<Kokkos::Rank<1>,Kokkos::IndexType<int>>;
-Kokkos::parallel_for("test", md({0},{10}),KOKKOS_LAMBDA(int i){
-    foo_view(i).val = i;
-});
+namespace vector_approach{
+    template<class ValueType>
+    ValueType dot_product(vector_prep::Vector<ValueType> const& A, vector_prep::Vector<ValueType> const& B){
+    if(A.size() != B.size())
+    {
+        throw std::invalid_argument("Vectors must be of the same size for dot product.");
+    }
+    const size_t size = A.size();
+    vector_prep::KokkosView<ValueType> A_("A", size);
+    vector_prep::KokkosView<ValueType> B_("B", size);
+    vector_prep::KokkosView<ValueType> C_("C", size);
+    auto host_A = Kokkos::create_mirror_view(A_);
+    auto host_B = Kokkos::create_mirror_view(B_);
+    for (size_t i = 0; i < size; ++i) {
+        host_A(i) = A[i];
+        host_B(i) = B[i];
+    }
+    Kokkos::deep_copy(A_,host_A);
+    Kokkos::deep_copy(B_, host_B);
+    double sum = 0;
+    Kokkos::parallel_reduce(Kokkos::RangePolicy<>(0, size), KOKKOS_LAMBDA(int i, double& lsum){
+        lsum += A_(i) * B_(i);
+    }, sum);
+    Kokkos::fence();
+
+    return sum;
+}
+}
 
