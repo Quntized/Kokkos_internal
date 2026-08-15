@@ -1,0 +1,7 @@
+add_library(kokkos_num INTERFACE)
+target_link_libraries(kokkos_num INTERFACE Kokkos::kokkos)
+target_include_directories(kokkos_num INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(kokkos_num_exe vec_perp.cpp)
+target_compile_features(kokkos_num_exe PUBLIC cxx_std_20)
+#target_compile_definitions(kokkos_num_exe PUBLIC KOKKOS_NUMS_ENABLE_TESTS)
+target_link_libraries(kokkos_num_exe PRIVATE kokkos_num)
